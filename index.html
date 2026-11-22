@@ -241,9 +241,39 @@ input,textarea,select{font:inherit;font-size:16px;color:var(--text)}
 .modal .mbtns{display:flex;gap:8px;margin-top:10px}
 .modal .mbtns button{flex:1;padding:12px;border-radius:12px;background:var(--surface2);color:var(--accent);font-weight:600}
 .modal .mbtns button.pri{background:var(--accent);color:#231a1d}
-#toast{position:fixed;left:50%;top:calc(var(--sat) + 10px);transform:translate(-50%,-150%);z-index:200;max-width:90%;padding:10px 16px;border-radius:14px;
-  background:rgba(50,48,54,.95);color:var(--text);font-size:14.5px;line-height:1.35;transition:transform .3s;text-align:center;box-shadow:0 6px 24px rgba(0,0,0,.4)}
-#toast.show{transform:translate(-50%,0)}
+#toast{position:absolute;left:50%;top:calc(var(--sat) + 10px);transform:translate(-50%,calc(-100% - var(--sat) - 40px));opacity:0;z-index:200;max-width:90%;padding:10px 16px;border-radius:14px;
+  background:rgba(50,48,54,.95);color:var(--text);font-size:14.5px;line-height:1.35;transition:transform .3s,opacity .3s;text-align:center;box-shadow:0 6px 24px rgba(0,0,0,.4);pointer-events:none}
+#toast.show{transform:translate(-50%,0);opacity:1}
+/* всё «плавающее» живёт внутри #app, чтобы не съезжало на iOS 26 */
+.overlay,.sheet,.modal,#tabbar{position:absolute!important}
+/* просмотр фото */
+.viewer{position:absolute;inset:0;z-index:150;background:#000;opacity:0;transition:opacity .2s;display:flex;align-items:center;justify-content:center}
+.viewer.show{opacity:1}
+.viewer img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+.viewer .vtop{position:absolute;top:calc(var(--sat) + 8px);left:12px;right:12px;display:flex;justify-content:space-between;align-items:center;z-index:2}
+.viewer .vtop button{height:40px;min-width:40px;padding:0 14px;border-radius:20px;color:#fff;font-size:15px;font-weight:600}
+.viewer .vcount{color:rgba(255,255,255,.8);font-size:15px}
+.viewer .vl,.viewer .vr{position:absolute;top:15%;bottom:15%;width:35%}
+.viewer .vl{left:0}.viewer .vr{right:0}
+.viewer .vbottom{position:absolute;left:16px;right:16px;bottom:calc(var(--sab) + 16px);display:flex;justify-content:center}
+.viewer .vbottom button{padding:12px 20px;border-radius:22px;color:#fff;font-weight:600}
+/* пометка режима */
+.modepill{font-size:11px;font-weight:600;padding:2px 7px;border-radius:7px;margin-left:6px;vertical-align:2px;letter-spacing:.2px}
+.modepill.chat{background:var(--accent-dim);color:var(--accent)}
+.modepill.rp{background:rgba(140,160,210,.16);color:#a9b8de}
+/* роллплей */
+.chat.rp .msgs{padding-left:10px;padding-right:10px}
+.rpcard{margin-top:10px;padding:12px 14px;border-radius:16px;font-size:16.5px;line-height:1.45;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:anywhere;
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;background:rgba(43,42,46,.92)}
+.rpcard.user{background:rgba(217,180,192,.16);border:.5px solid rgba(217,180,192,.25)}
+.rpcard .who{font-size:13px;font-weight:600;color:var(--accent);margin-bottom:4px}
+.rpcard.user .who{color:#e8cbd4}
+.rpcard em{color:#cfc7cc}
+.rpcard.pressed{filter:brightness(1.15)}
+.typingdots{display:inline-flex;gap:5px;padding:14px 16px;border-radius:16px;background:rgba(43,42,46,.92);margin-top:10px;align-self:flex-start}
+.typingdots i{width:8px;height:8px;border-radius:50%;background:var(--text2);animation:td 1.2s infinite}
+.typingdots i:nth-child(2){animation-delay:.2s}.typingdots i:nth-child(3){animation-delay:.4s}
+@keyframes td{0%,60%,100%{opacity:.3;transform:none}30%{opacity:1;transform:translateY(-3px)}}
 .spin{display:inline-block;width:16px;height:16px;border:2px solid var(--accent-dim);border-top-color:var(--accent);border-radius:50%;animation:sp 1s linear infinite;vertical-align:middle}
 @keyframes sp{to{transform:rotate(360deg)}}
 .pill{display:inline-block;padding:2px 8px;border-radius:8px;background:var(--accent-dim);color:var(--accent);font-size:12px;margin-left:6px}
@@ -272,7 +302,7 @@ input,textarea,select{font:inherit;font-size:16px;color:var(--text)}
    Все данные хранятся только в этом браузере (IndexedDB).
    ===================================================== */
 
-const VERSION = 'этап 1';
+const VERSION = 'этап 1.1';
 
 /* ---------- иконки ---------- */
 const IC = {
@@ -334,7 +364,7 @@ const S = {settings:null, characters:[], personas:[], chats:[]};
 function defaultSettings(){return{
   apis:[], activeApiId:null, mode:'chat',
   prompts:{chat:DEFAULT_PROMPTS.chat, rp:DEFAULT_PROMPTS.rp},
-  contextTokens:32000, replyDelay:4,
+  contextTokens:32000, replyDelay:4, replyDelayKb:10,
   greeting:{enabled:true,text:DEFAULT_GREETING},
   activePersonaId:null
 };}
@@ -346,6 +376,7 @@ async function load(){
   S.chats = await DB.get('chats')||[];
   if(!S.personas.length){const p={id:uid(),name:'Я',description:'',photo:null};S.personas.push(p);S.settings.activePersonaId=p.id;await save('personas');await save('settings');}
   if(!S.personas.find(p=>p.id===S.settings.activePersonaId)){S.settings.activePersonaId=S.personas[0].id;await save('settings');}
+  let fix=false;S.chats.forEach(c=>{if(!c.mode){c.mode=S.settings.mode;fix=true;}});if(fix)await save('chats');
 }
 const saveQ={};
 function save(key){ // последовательная запись, чтобы не путались
@@ -363,6 +394,9 @@ const charById=id=>S.characters.find(c=>c.id===id);
 const personaById=id=>S.personas.find(p=>p.id===id);
 const chatById=id=>S.chats.find(c=>c.id===id);
 const activeApi=()=>S.settings.apis.find(a=>a.id===S.settings.activeApiId)||S.settings.apis[0];
+const chatApi=chat=>(chat&&chat.apiId&&S.settings.apis.find(a=>a.id===chat.apiId))||activeApi();
+const chatMode=chat=>(chat&&chat.mode)||S.settings.mode;
+const MODE_NAMES={chat:'смс',rp:'ролплей'};
 function fmtTime(ts){return new Date(ts).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}
 function dayKey(ts){const d=new Date(ts);return d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate()}
 function fmtDay(ts){
@@ -402,6 +436,9 @@ function avatar(src,name,size){
 const charPhoto=c=>c&&c.photos&&c.photos[0]?c.photos[0].src:null;
 let toastT;
 function toast(msg,ms=2600){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),ms);}
+function rpFormat(t){
+  return esc(t).replace(/\*\*([^*\n]+)\*\*/g,'<b>$1</b>').replace(/\*([^*\n]+)\*/g,'<em>$1</em>');
+}
 function estTokens(s){return Math.ceil((s||'').length/2.8)}
 
 function resizeImage(file,max=1280){
@@ -420,7 +457,7 @@ function pickFiles(accept,multiple){
 }
 
 /* ---------- листы, окна ---------- */
-function overlay(onClose){const o=document.createElement('div');o.className='overlay';document.body.appendChild(o);requestAnimationFrame(()=>o.classList.add('show'));o.onclick=onClose;return o;}
+function overlay(onClose){const o=document.createElement('div');o.className='overlay';app.appendChild(o);requestAnimationFrame(()=>o.classList.add('show'));o.onclick=onClose;return o;}
 function sheet({title,actions}){
   return new Promise(resolve=>{
     let done=false;
@@ -429,7 +466,7 @@ function sheet({title,actions}){
     const s=document.createElement('div');s.className='sheet';
     s.innerHTML=`<div class="sgroup">${title?`<div class="stitle">${esc(title)}</div>`:''}${actions.map((a,i)=>`<button class="sbtn ${a.danger?'danger':''}" data-i="${i}">${esc(a.label)}</button>`).join('')}</div>
       <div class="sgroup cancel"><button class="sbtn" data-i="-1" style="font-weight:600">Отмена</button></div>`;
-    document.body.appendChild(s);requestAnimationFrame(()=>s.classList.add('show'));
+    app.appendChild(s);requestAnimationFrame(()=>s.classList.add('show'));
     s.onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;const i=+b.dataset.i;close(i);if(i>=0&&actions[i].onClick)actions[i].onClick();};
   });
 }
@@ -441,10 +478,35 @@ function editText(title,value){
     const o=overlay(()=>close(null));
     const m=document.createElement('div');m.className='modal';
     m.innerHTML=`<h3>${esc(title)}</h3><textarea></textarea><div class="mbtns"><button data-a="c">Отмена</button><button class="pri" data-a="s">Сохранить</button></div>`;
-    document.body.appendChild(m);const ta=$('textarea',m);ta.value=value||'';
+    app.appendChild(m);const ta=$('textarea',m);ta.value=value||'';
     requestAnimationFrame(()=>{m.classList.add('show');ta.focus();});
     m.onclick=e=>{const a=e.target.closest('[data-a]');if(!a)return;close(a.dataset.a==='s'?ta.value:null);};
   });
+}
+
+/* ---------- просмотр фото на весь экран ---------- */
+function viewer(srcs,start=0,opts={}){
+  if(!srcs||!srcs.length)return;
+  let i=start;
+  const v=document.createElement('div');v.className='viewer';
+  const draw=()=>{
+    const act=opts.action&&opts.action.hideOn!==i?`<div class="vbottom"><button class="glass" data-va>${esc(opts.action.label)}</button></div>`:'';
+    v.innerHTML=`<img src="${srcs[i]}"><div class="vtop"><button class="glass" data-vx>Закрыть</button><span class="vcount">${srcs.length>1?(i+1)+' из '+srcs.length:''}</span><span style="width:80px"></span></div>
+      ${srcs.length>1?'<div class="vl"></div><div class="vr"></div>':''}${act}`;
+    $('[data-vx]',v).onclick=close;
+    const l=$('.vl',v),r=$('.vr',v);
+    if(l)l.onclick=()=>{i=(i-1+srcs.length)%srcs.length;draw();};
+    if(r)r.onclick=()=>{i=(i+1)%srcs.length;draw();};
+    const a=$('[data-va]',v);if(a)a.onclick=()=>{close();opts.action.onClick(i);};
+  };
+  const close=()=>{v.classList.remove('show');setTimeout(()=>v.remove(),200);};
+  // свайп влево/вправо — листать, вниз — закрыть
+  let sx=0,sy=0;
+  v.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});
+  v.addEventListener('touchend',e=>{const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;
+    if(dy>90&&Math.abs(dx)<70)close();
+    else if(srcs.length>1&&Math.abs(dx)>60&&Math.abs(dy)<60){i=(i+(dx<0?1:-1)+srcs.length)%srcs.length;draw();}},{passive:true});
+  draw();app.appendChild(v);requestAnimationFrame(()=>v.classList.add('show'));
 }
 
 /* ---------- навигация ---------- */
@@ -493,15 +555,35 @@ function topbar(title,{back=true,right=''}={}){
 function bindBack(el){$$('[data-back]',el).forEach(b=>b.onclick=pop);}
 
 /* ---------- клавиатура iOS ---------- */
+// iOS 26: после закрытия клавиатуры экран в приложении «с экрана Домой» иногда остаётся сжатым.
+// Поэтому без клавиатуры берём полную высоту экрана, а с клавиатурой — видимую область.
+const isStandalone=window.navigator.standalone===true||matchMedia('(display-mode: standalone)').matches;
+function isEditing(){const a=document.activeElement;return !!a&&(a.tagName==='TEXTAREA'||(a.tagName==='INPUT'&&!['checkbox','radio','button','file'].includes(a.type)));}
+function fullHeight(){
+  if(isStandalone){const portrait=window.matchMedia('(orientation: portrait)').matches;
+    return portrait?Math.max(screen.height,screen.width):Math.min(screen.height,screen.width);}
+  return window.innerHeight;
+}
 function fitViewport(){
-  const vv=window.visualViewport;const h=vv?vv.height:window.innerHeight;
+  const vv=window.visualViewport;
+  const editing=isEditing();
+  const kbOpen=editing&&vv&&fullHeight()-vv.height>150;
+  const h=kbOpen?vv.height:fullHeight();
   document.documentElement.style.setProperty('--app-h',h+'px');
-  document.body.classList.toggle('kb',vv&&window.innerHeight-vv.height>120);
+  document.body.classList.toggle('kb',!!kbOpen);
   window.scrollTo(0,0);
   document.dispatchEvent(new Event('veya:resize'));
 }
+function healViewport(){ // заставляет iOS пересчитать размер экрана
+  if(isEditing())return;
+  const r=document.documentElement;r.style.display='none';void r.offsetHeight;r.style.display='';
+  fitViewport();
+}
 if(window.visualViewport){visualViewport.addEventListener('resize',fitViewport);visualViewport.addEventListener('scroll',()=>window.scrollTo(0,0));}
 window.addEventListener('resize',fitViewport);
+document.addEventListener('focusin',()=>setTimeout(fitViewport,50));
+document.addEventListener('focusout',()=>{setTimeout(fitViewport,60);setTimeout(healViewport,450);});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(healViewport,200);});
 
 /* =====================================================
    API: Gemini / OpenAI / Anthropic
@@ -598,7 +680,7 @@ function buildPrompt(chat,{first=false}={}){
   const ch=charById(chat.characterId);const persona=personaById(chat.personaId)||personaById(S.settings.activePersonaId);
   const userName=(persona&&persona.name)||'Собеседник';const charName=ch.name||'Персонаж';
   const mac=s=>(s||'').replace(/\{\{char\}\}/gi,charName).replace(/\{\{user\}\}/gi,userName).replace(/<BOT>/g,charName).replace(/<USER>/g,userName);
-  const mode=S.settings.mode;
+  const mode=chatMode(chat);
   const now=new Date();
   const tz=Intl.DateTimeFormat().resolvedOptions().timeZone;
   let system=mac(S.settings.prompts[mode]||DEFAULT_PROMPTS[mode]);
@@ -624,12 +706,12 @@ function buildPrompt(chat,{first=false}={}){
   }else if(turns.length&&last&&last.role==='user'&&Date.now()-last.ts>60*6e4){
     turns[turns.length-1].text+=`\n(с этого сообщения прошло ${fmtGap(Date.now()-last.ts)})`;
   }
-  return {system,turns,charName};
+  return {system,turns,charName,mode};
 }
-function parseReply(raw,charName){
+function parseReply(raw,charName,mode){
   let t=(raw||'').replace(/\r/g,'').trim();
   const namePrefix=new RegExp('^\\s*'+charName.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\s*:\\s*','i');
-  if(S.settings.mode==='rp'){
+  if(mode==='rp'){
     t=t.replace(/^\(прошло[^)]*\)\s*/i,'').replace(namePrefix,'');
     return t?[t]:[];
   }
@@ -649,14 +731,27 @@ const replyTimers={};
 function chatChanged(chatId){
   nav.stack.forEach(it=>{if(it.el.chatId===chatId||it.el.listensChats)refreshItem(it);});
 }
-function scheduleReply(chatId){
+const composers={}; // chatId -> поле ввода открытого чата
+// Бот ждёт: пока в поле есть недописанный текст — не отвечает вообще;
+// клавиатура открыта — ждёт дольше (replyDelayKb), закрыта — обычное ожидание (replyDelay).
+function replyDelayFor(chatId){
+  const chat=chatById(chatId);const ta=composers[chatId];
+  if(chatMode(chat)==='rp')return 600;
+  const kb=ta&&document.activeElement===ta;
+  return (kb?(S.settings.replyDelayKb||10):(S.settings.replyDelay||4))*1000;
+}
+function scheduleReply(chatId,delay){
   clearTimeout(replyTimers[chatId]);
-  replyTimers[chatId]=setTimeout(()=>{delete replyTimers[chatId];generate(chatId);},(S.settings.replyDelay||4)*1000);
+  replyTimers[chatId]=setTimeout(()=>{
+    const ta=composers[chatId];
+    if(ta&&ta.isConnected&&ta.value.trim()){scheduleReply(chatId,1500);return;} // юзер ещё пишет
+    delete replyTimers[chatId];generate(chatId);
+  },delay??replyDelayFor(chatId));
 }
 async function generate(chatId,opts={}){
   if(generating.has(chatId))return;
   const chat=chatById(chatId);if(!chat)return;
-  const api=activeApi();
+  const api=chatApi(chat);
   if(!api||!api.key||!api.model){toast('Сначала подключите API: Настройки → API подключения');return;}
   generating.add(chatId);
   chat.messages=chat.messages.filter(m=>m.role!=='error');
@@ -664,13 +759,13 @@ async function generate(chatId,opts={}){
   chat.botLastSeen=Date.now();
   save('chats');chatChanged(chatId);
   try{
-    const {system,turns,charName}=buildPrompt(chat,opts);
+    const {system,turns,charName,mode}=buildPrompt(chat,opts);
     const raw=await callModel(api,system,turns);
-    const parts=parseReply(raw,charName);
+    const parts=parseReply(raw,charName,mode);
     if(!parts.length)throw new Error('Модель вернула пустой ответ. Попробуйте ещё раз.');
     for(let i=0;i<parts.length;i++){
       if(i>0)await sleep(Math.min(600+parts[i].length*38,3800));
-      else await sleep(250);
+      else await sleep(mode==='rp'?0:250);
       if(!chatById(chatId))return;
       chat.messages.push({id:uid(),role:'bot',text:parts[i],ts:Date.now()});
       chat.botLastSeen=Date.now();
@@ -713,10 +808,10 @@ function chatItemHTML(chat){
   const ch=charById(chat.characterId)||{name:'Удалённый персонаж'};
   const msgs=chat.messages.filter(m=>m.role!=='error');const last=msgs[msgs.length-1];
   const unread=chat.messages.filter(m=>m.role==='bot'&&m.ts>(chat.lastOpened||0)).length;
-  let prev=last?(last.role==='user'?'Вы: ':'')+last.text:'Нет сообщений';
-  const typing=generating.has(chat.id);
+  let prev=last?(last.role==='user'?'Вы: ':'')+last.text.replace(/\*/g,''):'Нет сообщений';
+  const typing=generating.has(chat.id)&&chatMode(chat)==='chat';
   return `<button class="chatitem" data-chat="${chat.id}">${avatar(charPhoto(ch),ch.name,58)}
-    <div class="body"><div class="line1"><span class="name">${esc(ch.name)}</span><span class="time">${fmtListTime(lastTs(chat))}</span></div>
+    <div class="body"><div class="line1"><span class="name">${esc(ch.name)}<span class="modepill ${chatMode(chat)}">${MODE_NAMES[chatMode(chat)]}</span></span><span class="time">${fmtListTime(lastTs(chat))}</span></div>
     <div class="line2"><span class="preview ${typing?'typing':''}">${typing?'печатает…':esc(prev)}</span>${unread&&!typing?`<span class="badge">${unread}</span>`:''}</div></div></button>`;
 }
 function newMenu(){
@@ -734,17 +829,30 @@ function pickCharacterScreen(el){
   $('[data-add]',el).onclick=()=>push(e=>characterEditor(e,null,{thenChat:true}));
   $$('[data-c]',el).forEach(b=>b.onclick=()=>push(e=>newChatSetup(e,b.dataset.c)));
 }
+function apiOptionLabel(id){if(!id){const a=activeApi();return 'По умолчанию'+(a?' ('+(a.name||a.model)+')':'');}const a=S.settings.apis.find(x=>x.id===id);return a?(a.name||a.model):'По умолчанию';}
+function pickApiSheet(current){
+  return new Promise(res=>{
+    const opts=[{id:null},...S.settings.apis.map(a=>({id:a.id}))];
+    sheet({title:'Модель для этого чата',actions:opts.map(o=>({label:(o.id===current||(!o.id&&!current)?'✓ ':'')+apiOptionLabel(o.id),onClick:()=>res({id:o.id})}))}).then(i=>{if(i===null||i<0)res(null);});
+  });
+}
 function newChatSetup(el,charId){
   const ch=charById(charId);
-  const st={personaId:S.settings.activePersonaId,starts:'bot',relation:''};
+  const st={personaId:S.settings.activePersonaId,mode:S.settings.mode,apiId:null,first:'default',firstText:ch.greeting||'',relation:''};
   const draw=()=>{
+    const firstHint=st.first==='user'?'Вы напишете первым.':st.first==='custom'?'Персонаж начнёт с сообщения, которое вы напишете ниже.':
+      (st.mode==='chat'&&S.settings.greeting.enabled?'Персонаж начнёт со стандартного приветствия: «'+esc(S.settings.greeting.text)+'».':'Персонаж сам придумает первое сообщение.');
     el.innerHTML=topbar('Новый чат')+`<div class="scroll">
       <div style="display:flex;flex-direction:column;align-items:center;padding:18px 0 4px">${avatar(charPhoto(ch),ch.name,84)}<div style="margin-top:8px;font-weight:600;font-size:19px">${esc(ch.name)}</div></div>
+      <div class="group-title">Формат</div>
+      <div class="group" style="padding:10px 12px"><div class="seg"><button data-m="chat" class="${st.mode==='chat'?'on':''}">Переписка (смс)</button><button data-m="rp" class="${st.mode==='rp'?'on':''}">Ролплей</button></div></div>
+      <div class="group"><button class="row" data-api><span class="label">Модель</span><span class="value">${esc(apiOptionLabel(st.apiId))}</span>${IC.chev}</button></div>
       <div class="group-title">От чьего имени пишете</div>
       <div class="group">${S.personas.map(p=>`<button class="row" data-p="${p.id}">${avatar(p.photo,p.name,36)}<span class="label">${esc(p.name)}</span>${st.personaId===p.id?IC.check:''}</button>`).join('')}</div>
-      <div class="group-title">Кто начинает переписку</div>
-      <div class="group" style="padding:10px 12px"><div class="seg"><button data-s="bot" class="${st.starts==='bot'?'on':''}">${esc(ch.name)}</button><button data-s="user" class="${st.starts==='user'?'on':''}">Я</button></div></div>
-      <div class="group-foot">${st.starts==='bot'?(ch.greeting?'Персонаж начнёт с приветствия из карточки.':(S.settings.greeting.enabled?'Персонаж начнёт со стандартного приветствия: «'+esc(S.settings.greeting.text)+'».':'Персонаж сам придумает первое сообщение.')):'Вы напишете первым.'}</div>
+      <div class="group-title">Первое сообщение</div>
+      <div class="group" style="padding:10px 12px"><div class="seg"><button data-f="default" class="${st.first==='default'?'on':''}">Стандартное</button><button data-f="custom" class="${st.first==='custom'?'on':''}">Своё</button><button data-f="user" class="${st.first==='user'?'on':''}">Пишу я</button></div></div>
+      ${st.first==='custom'?`<div class="group"><div class="field"><textarea data-ft placeholder="Сообщение, с которого ${esc(ch.name)} начнёт чат">${esc(st.firstText)}</textarea></div></div>`:''}
+      <div class="group-foot">${firstHint}</div>
       <div class="group-title">Кто вы друг другу</div>
       <div class="group"><div class="field"><textarea data-rel placeholder="Необязательно. Например: бывшие одноклассники, случайно нашли друг друга в соцсетях спустя 5 лет.">${esc(st.relation)}</textarea></div></div>
       <div class="group-foot">Если оставить пустым, модели ничего не отправляется.</div>
@@ -752,15 +860,20 @@ function newChatSetup(el,charId){
     </div>`;
     bindBack(el);
     $$('[data-p]',el).forEach(b=>b.onclick=()=>{st.personaId=b.dataset.p;draw();});
-    $$('[data-s]',el).forEach(b=>b.onclick=()=>{st.starts=b.dataset.s;draw();});
+    $$('[data-m]',el).forEach(b=>b.onclick=()=>{st.mode=b.dataset.m;draw();});
+    $$('[data-f]',el).forEach(b=>b.onclick=()=>{st.first=b.dataset.f;draw();});
+    $('[data-api]',el).onclick=async()=>{const r=await pickApiSheet(st.apiId);if(r){st.apiId=r.id;draw();}};
+    const ft=$('[data-ft]',el);if(ft)ft.oninput=e=>st.firstText=e.target.value;
     $('[data-rel]',el).oninput=e=>st.relation=e.target.value;
     $('[data-go]',el).onclick=async()=>{
-      const chat={id:uid(),characterId:charId,personaId:st.personaId,relation:st.relation.trim(),messages:[],createdAt:Date.now(),lastOpened:Date.now(),botLastSeen:Date.now()};
+      if(st.first==='custom'&&!st.firstText.trim()){toast('Напишите первое сообщение или выберите другой вариант');return;}
+      const chat={id:uid(),characterId:charId,personaId:st.personaId,mode:st.mode,apiId:st.apiId,relation:st.relation.trim(),messages:[],createdAt:Date.now(),lastOpened:Date.now(),botLastSeen:Date.now()};
+      const p=personaById(st.personaId);
+      const mac=s=>s.replace(/\{\{char\}\}/gi,ch.name).replace(/\{\{user\}\}/gi,p?p.name:'');
       let needGen=false;
-      if(st.starts==='bot'){
-        const g=ch.greeting&&ch.greeting.trim()?ch.greeting:(S.settings.greeting.enabled?S.settings.greeting.text:'');
-        if(g){const p=personaById(st.personaId);const mac=s=>s.replace(/\{\{char\}\}/gi,ch.name).replace(/\{\{user\}\}/gi,p?p.name:'');
-          chat.messages.push({id:uid(),role:'bot',text:mac(g),ts:Date.now()});}
+      if(st.first==='custom')chat.messages.push({id:uid(),role:'bot',text:mac(st.firstText.trim()),ts:Date.now()});
+      else if(st.first==='default'){
+        if(st.mode==='chat'&&S.settings.greeting.enabled&&S.settings.greeting.text.trim())chat.messages.push({id:uid(),role:'bot',text:mac(S.settings.greeting.text.trim()),ts:Date.now()});
         else needGen=true;
       }
       S.chats.push(chat);await save('chats');
@@ -796,8 +909,10 @@ function chatScreen(el,chatId){
   $('[data-attach]',el).onclick=()=>toast('Фото и файлы появятся на этапе 3');
   const syncBtn=()=>{const has=ta.value.trim().length>0;act.innerHTML=has?IC.send:IC.mic;act.classList.toggle('send',has);act.classList.toggle('glass',!has);};
   const grow=()=>{ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,140)+'px';};
+  composers[chatId]=ta;
   ta.oninput=()=>{grow();syncBtn();if(replyTimers[chatId])scheduleReply(chatId);};
-  ta.onfocus=()=>setTimeout(()=>scrollBottom(),300);
+  ta.onfocus=()=>{setTimeout(()=>scrollBottom(),300);if(replyTimers[chatId])scheduleReply(chatId);};
+  ta.onblur=()=>{if(replyTimers[chatId])scheduleReply(chatId);};
   act.onclick=()=>{
     const text=ta.value.trim();
     if(!text){toast('Голосовые и кружочки появятся на этапе 3');return;}
@@ -810,13 +925,16 @@ function chatScreen(el,chatId){
   const scrollBottom=()=>{msgsEl.scrollTop=msgsEl.scrollHeight;};
   const onResize=()=>{if(msgsEl.scrollHeight-msgsEl.scrollTop-msgsEl.clientHeight<200)scrollBottom();};
   document.addEventListener('veya:resize',onResize);
-  el.onLeave=()=>document.removeEventListener('veya:resize',onResize);
+  el.onLeave=()=>{document.removeEventListener('veya:resize',onResize);if(composers[chatId]===ta)delete composers[chatId];};
 
   function renderHead(){
     const ch=charById(chat.characterId)||{name:'Удалённый персонаж'};
     $('.hname',el).textContent=ch.name;
     const typing=generating.has(chatId);
+    const rp=chatMode(chat)==='rp';
+    el.classList.toggle('rp',rp);
     const st=$('.hstatus',el);
+    st.style.display=rp?'none':'';
     st.textContent=typing?'печатает…':lastSeenText(chat.botLastSeen);
     st.classList.toggle('on',typing||st.textContent==='в сети');
     $('.havatar',el).innerHTML=avatar(charPhoto(ch),ch.name,46);
@@ -824,6 +942,17 @@ function chatScreen(el,chatId){
   function renderMsgs(forceBottom){
     const nearBottom=msgsEl.scrollHeight-msgsEl.scrollTop-msgsEl.clientHeight<160;
     const list=chat.messages;let html='<div class="spacer-top"></div>';let prevDay=null;
+    if(chatMode(chat)==='rp'){
+      const ch=charById(chat.characterId)||{name:'Персонаж'};const pr=personaById(chat.personaId)||personaById(S.settings.activePersonaId);
+      list.forEach(m=>{
+        if(m.role==='error'){html+=`<div class="errrow" data-retry>⚠️ ${esc(m.text)}<b>Нажмите, чтобы повторить</b></div>`;return;}
+        html+=`<div class="rpcard ${m.role}" data-m="${m.id}"><div class="who">${esc(m.role==='user'?(pr?pr.name:'Вы'):ch.name)}</div>${rpFormat(m.text)}</div>`;
+      });
+      if(generating.has(chatId))html+='<div class="typingdots"><i></i><i></i><i></i></div>';
+      msgsEl.innerHTML=html;
+      if(forceBottom||nearBottom)scrollBottom();
+      bindRetry();bindLongPress();return;
+    }
     list.forEach((m,i)=>{
       const dk=dayKey(m.ts);if(dk!==prevDay){html+=`<div class="dsep">${fmtDay(m.ts)}</div>`;prevDay=dk;}
       if(m.role==='error'){html+=`<div class="errrow" data-retry>⚠️ ${esc(m.text)}<b>Нажмите, чтобы повторить</b></div>`;return;}
@@ -835,18 +964,24 @@ function chatScreen(el,chatId){
     });
     msgsEl.innerHTML=html;
     if(forceBottom||nearBottom)scrollBottom();
+    bindRetry();bindLongPress();
+  }
+  function bindRetry(){
     $$('[data-retry]',msgsEl).forEach(b=>b.onclick=()=>{chat.messages=chat.messages.filter(m=>m.role!=='error');save('chats');
       const last=chat.messages[chat.messages.length-1];generate(chatId,{first:!last});});
-    bindLongPress();
+  }
+  function openMenu(mid){ // при открытой клавиатуре сначала прячем её, иначе меню уезжает
+    if(navigator.vibrate)navigator.vibrate(10);
+    if(isEditing()){document.activeElement.blur();setTimeout(()=>msgMenu(mid),380);}else msgMenu(mid);
   }
   function bindLongPress(){
-    $$('.bubble',msgsEl).forEach(b=>{
+    $$('.bubble,.rpcard',msgsEl).forEach(b=>{
       let t=null,sx=0,sy=0;
-      b.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;b.classList.add('pressed');t=setTimeout(()=>{t=null;b.classList.remove('pressed');if(navigator.vibrate)navigator.vibrate(10);msgMenu(b.dataset.m);},450);},{passive:true});
+      b.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;b.classList.add('pressed');t=setTimeout(()=>{t=null;b.classList.remove('pressed');openMenu(b.dataset.m);},450);},{passive:true});
       const cancel=()=>{clearTimeout(t);t=null;b.classList.remove('pressed');};
       b.addEventListener('touchmove',e=>{const x=e.touches[0];if(Math.abs(x.clientX-sx)>8||Math.abs(x.clientY-sy)>8)cancel();},{passive:true});
       b.addEventListener('touchend',cancel);b.addEventListener('touchcancel',cancel);
-      b.addEventListener('contextmenu',e=>{e.preventDefault();msgMenu(b.dataset.m);});
+      b.addEventListener('contextmenu',e=>{e.preventDefault();openMenu(b.dataset.m);});
     });
   }
   function msgMenu(mid){
@@ -880,12 +1015,14 @@ function botProfile(el,chatId){
     const ch=charById(chat.characterId);if(!ch){pop();return;}
     const photos=ch.photos||[];if(idx>=photos.length)idx=0;
     const persona=personaById(chat.personaId);
-    const typing=generating.has(chatId);const status=typing?'печатает…':lastSeenText(chat.botLastSeen);
+    const rp=chatMode(chat)==='rp';
+    const typing=generating.has(chatId);const status=rp?'':typing?'печатает…':lastSeenText(chat.botLastSeen);
     el.innerHTML=`<div class="scroll" style="padding-bottom:30px">
       <div class="phero">
         ${photos.length?`<img src="${photos[idx].src}">`:`<div class="noimg">${esc((ch.name||'?').charAt(0).toUpperCase())}</div>`}
         <div class="shade"></div>
-        ${photos.length>1?`<div class="bars">${photos.map((p,i)=>`<i class="${i===idx?'on':''}"></i>`).join('')}</div><div class="tapl"></div><div class="tapr"></div>`:''}
+        <div class="tapc" style="position:absolute;inset:0"></div>
+        ${photos.length>1?`<div class="bars">${photos.map((p,i)=>`<i class="${i===idx?'on':''}"></i>`).join('')}</div><div class="tapl" style="width:28%"></div><div class="tapr" style="width:28%"></div>`:''}
         <div class="pname"><h2>${esc(ch.name)}</h2><div class="${typing||status==='в сети'?'on':''}">${status}</div></div>
       </div>
       <button class="overbtn l glass" data-back style="width:44px">${IC.back}</button>
@@ -899,6 +1036,9 @@ function botProfile(el,chatId){
         ${(ch.personality||'').length>280?`<button class="more" data-exp>${expanded?'свернуть':'ещё'}</button>`:''}</div>
       <button class="card" data-rel style="display:block;width:calc(100% - 32px);text-align:left"><div class="k">кто вы друг другу</div><div class="v">${esc(chat.relation||'Не указано — нажмите, чтобы добавить')}</div></button>
       <div class="card"><div class="k">вы пишете как</div><div class="v">${esc(persona?persona.name:'—')}</div></div>
+      <div class="group-title">Настройки чата</div>
+      <div class="group" style="padding:10px 12px"><div class="seg"><button data-cm="chat" class="${!rp?'on':''}">Переписка (смс)</button><button data-cm="rp" class="${rp?'on':''}">Ролплей</button></div></div>
+      <div class="group"><button class="row" data-capi><span class="label">Модель</span><span class="value">${esc(apiOptionLabel(chat.apiId))}</span>${IC.chev}</button></div>
       <div class="tabs"><button data-t="media" class="${tab==='media'?'on':''}">Медиа</button><button data-t="files" class="${tab==='files'?'on':''}">Файлы</button><button data-t="lore" class="${tab==='lore'?'on':''}">Лорбуки</button></div>
       <div class="tabpane">${tab==='lore'?'Лорбуки появятся на этапе 4':'Здесь будут '+(tab==='media'?'фото из чата':'голосовые, кружочки и файлы')+' — этап 3'}</div>
     </div>`;
@@ -906,6 +1046,9 @@ function botProfile(el,chatId){
     const tl=$('.tapl',el),tr=$('.tapr',el);
     if(tl)tl.onclick=()=>{idx=(idx-1+photos.length)%photos.length;draw();};
     if(tr)tr.onclick=()=>{idx=(idx+1)%photos.length;draw();};
+    $('.tapc',el).onclick=()=>viewer(photos.map(p=>p.src),idx);
+    $$('[data-cm]',el).forEach(b=>b.onclick=()=>{chat.mode=b.dataset.cm;save('chats');draw();toast(chat.mode==='rp'?'Этот чат теперь в режиме ролплея':'Этот чат теперь в режиме переписки');});
+    $('[data-capi]',el).onclick=async()=>{const r=await pickApiSheet(chat.apiId);if(r){chat.apiId=r.id;save('chats');draw();}};
     $('[data-edit]',el).onclick=()=>push(e=>characterEditor(e,ch.id));
     const ex=$('[data-exp]',el);if(ex)ex.onclick=()=>{expanded=!expanded;draw();};
     $('[data-rel]',el).onclick=async()=>{const v=await editText('Кто вы друг другу',chat.relation||'');if(v===null)return;chat.relation=v.trim();save('chats');draw();};
@@ -934,13 +1077,12 @@ function characterEditor(el,charId,opts={}){
     el.innerHTML=topbar(isNew?'Новый персонаж':'Персонаж',{right:`<button class="link" data-save style="font-weight:600">Готово</button>`})+`<div class="scroll">
       <div class="group-title">Фото</div>
       <div class="photos">${d.photos.map((p,i)=>`<div class="ph"><img src="${p.src}"><button class="x" data-del="${i}">×</button><button class="ref ${p.ref?'on':''}" data-ref="${i}">${p.ref?'★ референс':'референс'}</button></div>`).join('')}<button class="ph add" data-addph>+</button></div>
-      <div class="group-foot">Первое фото — аватарка. «Референс» — до 5 фото, по которым модель будет рисовать селфи персонажа (этап 3). Нажмите на фото, чтобы сделать его аватаркой.</div>
+      <div class="group-foot">Первое фото — аватарка. «Референс» — до 5 фото, по которым модель будет рисовать селфи персонажа (этап 3). Нажмите на фото, чтобы открыть его целиком или сделать аватаркой.</div>
       <div class="group">
         <div class="field"><label>Имя</label><input data-f="name" value="${esc(d.name)}" placeholder="Например, Кэм"></div>
         <div class="field"><label>Персоналити</label><textarea data-f="personality" style="min-height:220px" placeholder="Характер, внешность, биография, манера речи… Можно вставить описание с Janitor целиком.">${esc(d.personality)}</textarea></div>
-        <div class="field"><label>Приветствие (необязательно)</label><textarea data-f="greeting" placeholder="Первое сообщение, с которого персонаж начнёт чат">${esc(d.greeting)}</textarea>
-          <div class="hint">Можно использовать {{char}} и {{user}} — они заменятся на имена.</div></div>
       </div>
+      <div class="group-foot">Можно использовать {{char}} и {{user}} — они заменятся на имена. Первое сообщение выбирается при создании чата.</div>
       ${isNew?'':'<button class="btn danger" data-delchar>Удалить персонажа</button>'}
     </div>`;
     bindBack(el);
@@ -953,7 +1095,8 @@ function characterEditor(el,charId,opts={}){
     $$('[data-del]',el).forEach(b=>b.onclick=e=>{e.stopPropagation();d.photos.splice(+b.dataset.del,1);draw();});
     $$('[data-ref]',el).forEach(b=>b.onclick=e=>{e.stopPropagation();const p=d.photos[+b.dataset.ref];
       if(!p.ref&&d.photos.filter(x=>x.ref).length>=5){toast('Референсов может быть не больше 5');return;}p.ref=!p.ref;draw();});
-    $$('.ph img',el).forEach((img,i)=>img.onclick=()=>{if(i===0)return;const [p]=d.photos.splice(i,1);d.photos.unshift(p);draw();toast('Теперь это аватарка');});
+    $$('.ph img',el).forEach((img,i)=>img.onclick=()=>viewer(d.photos.map(p=>p.src),i,{
+      action:{label:'Сделать аватаркой',hideOn:0,onClick:(k)=>{const [p]=d.photos.splice(k,1);d.photos.unshift(p);draw();toast('Теперь это аватарка');}}}));
     $('[data-save]',el).onclick=async()=>{
       if(!d.name.trim()){toast('Введите имя персонажа');return;}
       d.name=d.name.trim();
@@ -989,6 +1132,7 @@ ROOTS.profile=function(el){
   </div>`;
   $('[data-edit]',el).onclick=()=>push(e=>personaEditor(e,p.id));
   $('[data-switch]',el).onclick=()=>push(personaList);
+  const hero=$('.phero',el);if(p.photo)hero.onclick=()=>viewer([p.photo],0);
 };
 function personaList(el){
   el.innerHTML=topbar('Персоны',{right:S.personas.length<50?`<button class="link" data-add>Создать</button>`:''})+`<div class="scroll">
@@ -1042,11 +1186,11 @@ function personaEditor(el,pid){
 ROOTS.settings=function(el){
   const api=activeApi();const st=S.settings;
   el.innerHTML=`<div class="bigtitle"><h1>Настройки</h1></div><div class="scroll">
-    <div class="group-title">Модель</div>
+    <div class="group-title">Модель по умолчанию</div>
     <div class="group"><button class="row" data-go="apis"><span class="label">API подключения</span><span class="value">${api?esc(api.name||api.model):'не настроено'}</span>${IC.chev}</button></div>
-    <div class="group-title">Режим</div>
-    <div class="group" style="padding:10px 12px"><div class="seg"><button data-mode="chat" class="${st.mode==='chat'?'on':''}">Переписка</button><button data-mode="rp" class="${st.mode==='rp'?'on':''}">Обычный роллплей</button></div></div>
-    <div class="group-foot">${st.mode==='chat'?'Персонаж пишет как в мессенджере: без действий и звёздочек, иногда несколькими сообщениями.':'Классический роллплей: действия, описания, NPC — одним сообщением.'}</div>
+    <div class="group-title">Режим по умолчанию для новых чатов</div>
+    <div class="group" style="padding:10px 12px"><div class="seg"><button data-mode="chat" class="${st.mode==='chat'?'on':''}">Переписка</button><button data-mode="rp" class="${st.mode==='rp'?'on':''}">Ролплей</button></div></div>
+    <div class="group-foot">${st.mode==='chat'?'Персонаж пишет как в мессенджере: без действий и звёздочек, иногда несколькими сообщениями.':'Классический ролплей: действия, описания, NPC — одним сообщением.'} Режим и модель можно поменять для каждого чата отдельно: профиль персонажа → «Настройки чата».</div>
     <div class="group">
       <button class="row" data-go="prompt"><span class="label">Промпт</span><span class="value">${st.prompts[st.mode]===DEFAULT_PROMPTS[st.mode]?'стандартный':'свой'}</span>${IC.chev}</button>
       <button class="row" data-go="memory"><span class="label">Память и ответы</span><span class="value">${(st.contextTokens||0).toLocaleString('ru-RU')} ток.</span>${IC.chev}</button>
@@ -1168,17 +1312,23 @@ function memoryEditor(el){
         <input data-ctx type="number" inputmode="numeric" min="2000" max="2000000" step="1000" value="${st.contextTokens}">
         <div class="chips">${presets.map(p=>`<button class="chip ${st.contextTokens===p?'on':''}" data-pre="${p}">${p>=1e6?p/1e6+' млн':p/1000+'k'}</button>`).join('')}</div>
         <div class="hint">Чем больше — тем дольше бот помнит переписку, но тем дороже и медленнее запросы. Место под персонажа и промпт выделяется автоматически, старые сообщения забываются первыми. Не ставьте больше, чем позволяет модель.</div></div></div>
-      <div class="group-title">Ответ бота</div>
-      <div class="group"><div class="field"><label>Сколько секунд бот ждёт после вашего последнего сообщения</label>
-        <input data-delay type="number" inputmode="numeric" min="1" max="60" value="${st.replyDelay}">
-        <div class="hint">Пока вы печатаете, бот ждёт дальше. Так можно отправить несколько сообщений подряд, а бот ответит на все сразу.</div></div></div>
+      <div class="group-title">Ответ бота (режим переписки)</div>
+      <div class="group">
+        <div class="field"><label>Ожидание, если клавиатура закрыта (сек)</label>
+        <input data-delay type="number" inputmode="numeric" min="1" max="120" value="${st.replyDelay}"></div>
+        <div class="field"><label>Ожидание, если клавиатура открыта (сек)</label>
+        <input data-delaykb type="number" inputmode="numeric" min="1" max="300" value="${st.replyDelayKb||10}"></div>
+      </div>
+      <div class="group-foot">Пока в поле ввода есть недописанный текст, бот не отвечает совсем. Когда поле пустое, бот ждёт указанное время: с открытой клавиатурой дольше, ведь вы, скорее всего, сейчас допишете ещё. В ролплее бот отвечает сразу после отправки.</div>
     </div>`;
     bindBack(el);
     const ctx=$('[data-ctx]',el);
     ctx.onchange=()=>{let v=Math.round(+ctx.value||32000);v=Math.max(2000,Math.min(2000000,v));st.contextTokens=v;save('settings');draw();};
     $$('[data-pre]',el).forEach(b=>b.onclick=()=>{st.contextTokens=+b.dataset.pre;save('settings');draw();});
     const dl=$('[data-delay]',el);
-    dl.onchange=()=>{let v=Math.round(+dl.value||4);v=Math.max(1,Math.min(60,v));st.replyDelay=v;save('settings');draw();};
+    dl.onchange=()=>{let v=Math.round(+dl.value||4);v=Math.max(1,Math.min(120,v));st.replyDelay=v;save('settings');draw();};
+    const dk=$('[data-delaykb]',el);
+    dk.onchange=()=>{let v=Math.round(+dk.value||10);v=Math.max(1,Math.min(300,v));st.replyDelayKb=v;save('settings');draw();};
   };
   draw();
 }
@@ -1187,7 +1337,7 @@ function greetingEditor(el){
   const draw=()=>{
     el.innerHTML=topbar('Приветствие')+`<div class="scroll">
       <div class="group" style="margin-top:20px"><button class="row" data-tg><span class="label">Стандартное приветствие</span><span class="toggle ${g.enabled?'on':''}"></span></button></div>
-      <div class="group-foot">Используется, если чат начинает персонаж, а в его карточке нет своего приветствия. Если выключить — персонаж сам придумает первое сообщение.</div>
+      <div class="group-foot">Используется в режиме переписки, когда при создании чата выбрано «Первое сообщение: по умолчанию». Если выключить — персонаж сам придумает первое сообщение. В ролплее персонаж всегда придумывает его сам.</div>
       ${g.enabled?`<div class="group"><div class="field"><label>Текст</label><textarea data-t>${esc(g.text)}</textarea></div></div>
       <button class="btn secondary" data-reset>Вернуть стандартный текст</button>`:''}
     </div>`;
@@ -1233,6 +1383,7 @@ function backupScreen(el){
    Запуск
    ===================================================== */
 (async function start(){
+  app.appendChild($('#tabbar'));app.appendChild($('#toast'));
   fitViewport();
   try{await load();}catch(e){document.body.innerHTML='<div class="empty">Не удалось открыть хранилище: '+esc(e.message)+'</div>';return;}
   if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
