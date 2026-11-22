@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Veya">
+<meta name="theme-color" content="#000000">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<title>Veya AI</title>
+<style>
+:root{
+  --bg:#000;
+  --surface:#1c1c1e;
+  --surface2:#2c2c2e;
+  --surface3:#3a3a3c;
+  --sep:rgba(84,84,88,.55);
+  --text:#f2f2f4;
+  --text2:#8e8e93;
+  --text3:#636366;
+  --accent:#d7a6b5;
+  --accent2:#b98597;
+  --accent-dim:rgba(215,166,181,.16);
+  --bubble-user:#d9b4c0;
+  --bubble-user-text:#231a1d;
+  --bubble-user-meta:rgba(35,26,29,.55);
+  --bubble-bot:#2b2a2e;
+  --bubble-bot-text:#f2f2f4;
+  --danger:#ff6b6b;
+  --glass:rgba(38,36,40,.62);
+  --sat:env(safe-area-inset-top);
+  --sab:env(safe-area-inset-bottom);
+  --app-h:100dvh;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+  overscroll-behavior:none;overflow:hidden}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+input,textarea,select{font:inherit;font-size:16px;color:var(--text)}
+#app{position:fixed;left:0;right:0;top:0;height:var(--app-h);overflow:hidden}
+.screen{position:absolute;inset:0;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;
+  transition:transform .32s cubic-bezier(.2,.8,.2,1),opacity .32s}
+.screen.enter{transform:translateX(100%)}
+.screen.leave{transform:translateX(100%)}
+.screen.behind{transform:translateX(-25%);opacity:.6}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.with-tabbar .scroll{padding-bottom:calc(90px + var(--sab))}
+
+/* ---------- headers ---------- */
+.topbar{padding:calc(var(--sat) + 6px) 12px 8px;display:flex;align-items:center;gap:8px;min-height:44px;
+  background:rgba(0,0,0,.82);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:.5px solid var(--sep);position:relative;z-index:5}
+.topbar .title{flex:1;text-align:center;font-weight:600;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar .side{min-width:70px;display:flex;align-items:center}
+.topbar .side.right{justify-content:flex-end}
+.link{color:var(--accent);font-size:17px}
+.back{display:flex;align-items:center;gap:2px;color:var(--accent);font-size:17px}
+.back svg{width:13px;height:21px}
+.bigtitle{padding:calc(var(--sat) + 8px) 16px 6px;display:flex;align-items:flex-end;justify-content:space-between}
+.bigtitle h1{margin:0;font-size:34px;font-weight:700;letter-spacing:.2px}
+.iconbtn{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--surface2);color:var(--accent)}
+.iconbtn svg{width:20px;height:20px}
+
+/* ---------- tab bar ---------- */
+#tabbar{position:fixed;left:12px;right:12px;bottom:calc(var(--sab) + 6px);height:64px;border-radius:32px;
+  background:var(--glass);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);
+  border:.5px solid rgba(255,255,255,.08);display:flex;justify-content:space-around;align-items:center;z-index:50;
+  transition:transform .3s,opacity .3s}
+#tabbar.hidden{transform:translateY(140%);opacity:0;pointer-events:none}
+#tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:var(--text2);
+  height:52px;justify-content:center;border-radius:26px;margin:0 4px}
+#tabbar button svg{width:26px;height:26px}
+#tabbar button.active{color:var(--accent);background:rgba(255,255,255,.07)}
+
+/* ---------- lists ---------- */
+.group{margin:14px 16px;background:var(--surface);border-radius:14px;overflow:hidden}
+.group-title{margin:22px 32px 6px;font-size:13px;color:var(--text2);text-transform:uppercase;letter-spacing:.3px}
+.group-foot{margin:-6px 32px 12px;font-size:13px;color:var(--text2);line-height:1.35}
+.row{display:flex;align-items:center;gap:12px;padding:12px 16px;min-height:48px;position:relative;width:100%;text-align:left}
+.row+.row::before{content:"";position:absolute;top:0;left:16px;right:0;border-top:.5px solid var(--sep)}
+.row .label{flex:1;font-size:17px}
+.row .value{color:var(--text2);font-size:16px;max-width:55%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .chev{color:var(--text3);width:8px;height:14px;flex:none}
+.row.danger .label{color:var(--danger)}
+.row:active{background:var(--surface2)}
+.row .check{color:var(--accent);width:20px;height:20px}
+
+.chatitem{display:flex;gap:12px;padding:9px 16px;align-items:center;position:relative;width:100%;text-align:left}
+.chatitem:active{background:var(--surface)}
+.chatitem .body{flex:1;min-width:0;border-bottom:.5px solid var(--sep);padding-bottom:10px;align-self:stretch;display:flex;flex-direction:column;justify-content:center}
+.chatitem .line1{display:flex;justify-content:space-between;gap:8px}
+.chatitem .name{font-weight:600;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chatitem .time{color:var(--text2);font-size:14px;flex:none}
+.chatitem .line2{display:flex;justify-content:space-between;gap:8px;margin-top:3px}
+.chatitem .preview{color:var(--text2);font-size:15px;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.chatitem .preview.typing{color:var(--accent)}
+.badge{background:var(--accent);color:#231a1d;font-size:14px;font-weight:600;min-width:22px;height:22px;border-radius:11px;padding:0 7px;display:flex;align-items:center;justify-content:center;flex:none;align-self:center}
+
+.avatar{border-radius:50%;object-fit:cover;flex:none;background:linear-gradient(135deg,#7d5a66,#4a3a44);display:flex;align-items:center;justify-content:center;color:#f4e3e9;font-weight:600;overflow:hidden}
+.empty{color:var(--text2);text-align:center;padding:60px 32px;line-height:1.45;font-size:16px}
+
+/* ---------- forms ---------- */
+.field{padding:10px 16px}
+.field+.field{border-top:.5px solid var(--sep)}
+.field label{display:block;font-size:13px;color:var(--text2);margin-bottom:6px}
+.field input,.field textarea,.field select{width:100%;background:transparent;border:0;outline:0;padding:2px 0;resize:none}
+.field textarea{min-height:110px;line-height:1.4}
+.field select{-webkit-appearance:none;appearance:none}
+.field .hint{font-size:12px;color:var(--text3);margin-top:6px;line-height:1.35}
+.selectwrap{position:relative}
+.selectwrap::after{content:"";position:absolute;right:2px;top:50%;width:8px;height:8px;border-right:2px solid var(--text2);border-bottom:2px solid var(--text2);transform:translateY(-70%) rotate(45deg);pointer-events:none}
+.btn{display:block;width:calc(100% - 32px);margin:14px 16px;padding:14px;border-radius:14px;background:var(--accent);color:#231a1d;font-weight:600;font-size:17px;text-align:center}
+.btn.secondary{background:var(--surface);color:var(--accent)}
+.btn.danger{background:var(--surface);color:var(--danger)}
+.btn:disabled{opacity:.5}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chip{padding:6px 12px;border-radius:16px;background:var(--surface2);font-size:14px;color:var(--text)}
+.chip.on{background:var(--accent);color:#231a1d}
+.seg{display:flex;background:var(--surface2);border-radius:9px;padding:2px;gap:2px}
+.seg button{flex:1;padding:7px 6px;border-radius:7px;font-size:14px;color:var(--text)}
+.seg button.on{background:var(--surface3);font-weight:600}
+.toggle{width:51px;height:31px;border-radius:16px;background:var(--surface3);position:relative;flex:none;transition:background .2s}
+.toggle::after{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 2px 4px rgba(0,0,0,.3)}
+.toggle.on{background:var(--accent2)}
+.toggle.on::after{transform:translateX(20px)}
+
+/* photo grid */
+.photos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 16px}
+.ph{position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;background:var(--surface2)}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.ph .x{position:absolute;top:5px;right:5px;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:15px;line-height:24px;text-align:center}
+.ph .ref{position:absolute;left:5px;bottom:5px;padding:3px 8px;border-radius:10px;background:rgba(0,0,0,.6);color:#ddd;font-size:11px}
+.ph .ref.on{background:var(--accent);color:#231a1d;font-weight:600}
+.ph.add{display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:34px;border:1.5px dashed rgba(215,166,181,.45);background:transparent}
+
+/* ---------- chat ---------- */
+.chat{background:#0f0d10}
+.chat .wall{position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:
+   radial-gradient(120% 60% at 15% 10%,rgba(150,105,122,.20),transparent 60%),
+   radial-gradient(90% 55% at 90% 75%,rgba(92,110,150,.18),transparent 60%),
+   radial-gradient(70% 40% at 30% 95%,rgba(150,105,122,.14),transparent 60%),
+   #0f0d10}
+.chat .wall::after{content:"";position:absolute;inset:0;opacity:.07;
+  background-image:radial-gradient(circle at 1px 1px,#fff 1px,transparent 1.5px);background-size:22px 22px}
+.chathead{position:absolute;top:0;left:0;right:0;z-index:10;padding:calc(var(--sat) + 4px) 10px 6px;display:flex;align-items:center;gap:8px;pointer-events:none}
+.chathead > *{pointer-events:auto}
+.glass{background:var(--glass);backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);border:.5px solid rgba(255,255,255,.08)}
+.chathead .hback{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.chathead .hback svg{width:12px;height:20px;color:var(--text)}
+.chathead .hmid{flex:1;height:46px;border-radius:23px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;padding:0 14px}
+.chathead .hname{font-weight:600;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.chathead .hstatus{font-size:12.5px;color:var(--text2);margin-top:1px}
+.chathead .hstatus.on{color:var(--accent)}
+.chathead .havatar{width:46px;height:46px;border-radius:50%;padding:0}
+.msgs{position:relative;z-index:1;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+  padding:calc(var(--sat) + 66px) 8px 8px;display:flex;flex-direction:column}
+.msgs .spacer-top{flex:1}
+.dsep{align-self:center;margin:10px 0 6px;padding:4px 11px;border-radius:12px;font-size:13px;font-weight:500;color:#f0e6ea;background:rgba(80,70,90,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.mrow{display:flex;margin-top:2px;padding:0 2px}
+.mrow.gap{margin-top:8px}
+.mrow.user{justify-content:flex-end}
+.bubble{position:relative;max-width:80%;padding:7px 12px 7px 12px;border-radius:18px;font-size:16.5px;line-height:1.32;
+  white-space:pre-wrap;word-wrap:break-word;overflow-wrap:anywhere;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.mrow.bot .bubble{background:var(--bubble-bot);color:var(--bubble-bot-text)}
+.mrow.user .bubble{background:var(--bubble-user);color:var(--bubble-user-text)}
+.mrow.bot.tail .bubble{border-bottom-left-radius:5px}
+.mrow.user.tail .bubble{border-bottom-right-radius:5px}
+.bubble .sp{display:inline-block;width:52px;height:1px}
+.mrow.user .bubble .sp{width:70px}
+.bubble .edited-sp{width:118px}
+.mrow.user .bubble .edited-sp{width:136px}
+.meta{position:absolute;right:11px;bottom:5px;font-size:11.5px;display:flex;align-items:center;gap:3px;white-space:nowrap}
+.mrow.bot .meta{color:rgba(242,242,244,.45)}
+.mrow.user .meta{color:var(--bubble-user-meta)}
+.meta svg{width:16px;height:11px}
+.bubble.pressed{filter:brightness(1.15);transform:scale(.98);transition:transform .15s}
+.errrow{align-self:center;max-width:88%;margin:8px 0;padding:9px 13px;border-radius:14px;background:rgba(120,40,50,.55);color:#ffd9de;font-size:13.5px;line-height:1.35;text-align:center;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.errrow b{display:block;margin-top:6px;color:#fff}
+.composer{position:relative;z-index:10;display:flex;align-items:flex-end;gap:8px;padding:6px 10px calc(var(--sab) + 6px)}
+.kb .composer{padding-bottom:8px}
+.composer .cbtn{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;color:var(--text)}
+.composer .cbtn svg{width:23px;height:23px}
+.composer .inputwrap{flex:1;min-height:44px;border-radius:22px;display:flex;align-items:center;padding:0 14px}
+.composer textarea{flex:1;background:transparent;border:0;outline:0;resize:none;max-height:140px;line-height:1.3;padding:11px 0;font-size:16.5px}
+.composer textarea::placeholder{color:rgba(242,242,244,.4)}
+.composer .send{background:var(--accent);color:#231a1d}
+
+/* ---------- profile ---------- */
+.phero{position:relative;width:100%;aspect-ratio:1/1.05;max-height:62vh;background:#1a1719;flex:none;overflow:hidden}
+.phero img{width:100%;height:100%;object-fit:cover;display:block}
+.phero .noimg{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:96px;font-weight:700;color:#f4e3e9;background:linear-gradient(135deg,#7d5a66,#3b2f37)}
+.phero .shade{position:absolute;left:0;right:0;bottom:0;height:45%;background:linear-gradient(transparent,rgba(0,0,0,.75))}
+.phero .bars{position:absolute;top:calc(var(--sat) + 4px);left:10px;right:10px;display:flex;gap:4px}
+.phero .bars i{flex:1;height:2.5px;border-radius:2px;background:rgba(255,255,255,.35)}
+.phero .bars i.on{background:#fff}
+.phero .tapl,.phero .tapr{position:absolute;top:0;bottom:0;width:40%}
+.phero .tapl{left:0}.phero .tapr{right:0}
+.phero .pname{position:absolute;left:18px;bottom:16px;right:18px}
+.phero .pname h2{margin:0;font-size:30px;font-weight:700;text-shadow:0 1px 8px rgba(0,0,0,.4)}
+.phero .pname div{color:rgba(255,255,255,.75);font-size:16px;margin-top:3px}
+.phero .pname div.on{color:var(--accent)}
+.overbtn{position:absolute;top:calc(var(--sat) + 16px);height:44px;min-width:44px;border-radius:22px;display:flex;align-items:center;justify-content:center;padding:0 14px;z-index:3;color:#fff;font-size:16px;font-weight:600}
+.overbtn svg{width:12px;height:20px}
+.overbtn.l{left:14px;padding:0}
+.overbtn.r{right:14px}
+.actions{display:flex;gap:8px;padding:14px 16px 4px}
+.actions button{flex:1;background:var(--surface);border-radius:14px;padding:10px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12.5px;color:var(--text)}
+.actions button svg{width:24px;height:24px;color:var(--accent)}
+.card{margin:12px 16px;background:var(--surface);border-radius:14px;padding:12px 16px}
+.card .k{font-size:14px;color:var(--text2);margin-bottom:4px}
+.card .v{font-size:16px;line-height:1.4;white-space:pre-wrap;word-wrap:break-word}
+.card .v.clamp{display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
+.card .more{color:var(--accent);font-size:15px;margin-top:6px}
+.card + .card{margin-top:-4px}
+.tabs{display:flex;gap:4px;margin:16px 16px 0;background:var(--surface);border-radius:12px;padding:3px}
+.tabs button{flex:1;padding:8px;border-radius:9px;font-size:15px;color:var(--text2)}
+.tabs button.on{background:var(--surface3);color:var(--text);font-weight:600}
+.tabpane{margin:10px 16px 30px;color:var(--text2);font-size:15px;text-align:center;padding:26px 10px;background:var(--surface);border-radius:14px;line-height:1.4}
+
+/* ---------- sheets, toasts, modals ---------- */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;opacity:0;transition:opacity .25s}
+.overlay.show{opacity:1}
+.sheet{position:fixed;left:8px;right:8px;bottom:calc(var(--sab) + 8px);z-index:101;transform:translateY(120%);transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+.sheet.show{transform:none}
+.sheet .sgroup{background:rgba(44,44,46,.92);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border-radius:14px;overflow:hidden}
+.sheet .stitle{padding:13px 16px;text-align:center;color:var(--text2);font-size:13px;border-bottom:.5px solid var(--sep);line-height:1.35}
+.sheet .sbtn{display:block;width:100%;padding:17px;text-align:center;font-size:19px;color:var(--accent)}
+.sheet .sbtn + .sbtn{border-top:.5px solid var(--sep)}
+.sheet .sbtn.danger{color:var(--danger)}
+.sheet .cancel{margin-top:8px;font-weight:600}
+.modal{position:fixed;left:12px;right:12px;top:calc(var(--sat) + 40px);z-index:101;background:var(--surface);border-radius:16px;padding:14px;transform:translateY(-20px);opacity:0;transition:all .25s}
+.modal.show{transform:none;opacity:1}
+.modal h3{margin:2px 0 10px;font-size:17px;text-align:center}
+.modal textarea{width:100%;min-height:140px;max-height:45vh;background:var(--surface2);border:0;border-radius:10px;padding:10px;outline:0;resize:none;line-height:1.4}
+.modal .mbtns{display:flex;gap:8px;margin-top:10px}
+.modal .mbtns button{flex:1;padding:12px;border-radius:12px;background:var(--surface2);color:var(--accent);font-weight:600}
+.modal .mbtns button.pri{background:var(--accent);color:#231a1d}
+#toast{position:fixed;left:50%;top:calc(var(--sat) + 10px);transform:translate(-50%,-150%);z-index:200;max-width:90%;padding:10px 16px;border-radius:14px;
+  background:rgba(50,48,54,.95);color:var(--text);font-size:14.5px;line-height:1.35;transition:transform .3s;text-align:center;box-shadow:0 6px 24px rgba(0,0,0,.4)}
+#toast.show{transform:translate(-50%,0)}
+.spin{display:inline-block;width:16px;height:16px;border:2px solid var(--accent-dim);border-top-color:var(--accent);border-radius:50%;animation:sp 1s linear infinite;vertical-align:middle}
+@keyframes sp{to{transform:rotate(360deg)}}
+.pill{display:inline-block;padding:2px 8px;border-radius:8px;background:var(--accent-dim);color:var(--accent);font-size:12px;margin-left:6px}
+.listsel{display:flex;align-items:center;gap:12px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<nav id="tabbar">
+  <button data-tab="chats">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3C6.5 3 2 6.9 2 11.6c0 2.5 1.3 4.8 3.4 6.4-.1 1.2-.6 2.5-1.7 3.5 2.2 0 4-.9 5.2-1.9 1 .3 2 .4 3.1.4 5.5 0 10-3.9 10-8.6S17.5 3 12 3z"/></svg>
+    Чаты</button>
+  <button data-tab="profile">
+    <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4.2"/><path d="M3.5 20.5c.8-4 4.3-6.5 8.5-6.5s7.7 2.5 8.5 6.5c.1.4-.2.8-.7.8H4.2c-.5 0-.8-.4-.7-.8z"/></svg>
+    Профиль</button>
+  <button data-tab="settings">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.4 13c.04-.33.06-.66.06-1s-.02-.67-.06-1l2.1-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1a7.3 7.3 0 0 0-1.73-1l-.38-2.65A.49.49 0 0 0 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.63.26-1.2.6-1.73 1l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.6 11c-.04.33-.06.67-.06 1s.02.67.06 1l-2.1 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.1.74 1.73 1l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.63-.26 1.2-.6 1.73-1l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64L19.4 13zM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7z"/></svg>
+    Настройки</button>
+</nav>
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* =====================================================
+   Veya AI — этап 1
+   Все данные хранятся только в этом браузере (IndexedDB).
+   ===================================================== */
+
+const VERSION = 'этап 1';
+
+/* ---------- иконки ---------- */
+const IC = {
+  back:'<svg viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2 2 10l8 8"/></svg>',
+  chev:'<svg class="chev" viewBox="0 0 8 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m1 1 6 6-6 6"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  clip:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 11.5-8.6 8.6a5.5 5.5 0 0 1-7.8-7.8l8.6-8.6a3.7 3.7 0 0 1 5.2 5.2l-8.6 8.6a1.8 1.8 0 0 1-2.6-2.6l8-8"/></svg>',
+  mic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="2.5" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3.5"/></svg>',
+  send:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/></svg>',
+  check:'<svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
+  tick1:'<svg viewBox="0 0 16 11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m1.5 6 3.5 3.5L12 2"/></svg>',
+  tick2:'<svg viewBox="0 0 16 11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m1 6 3.5 3.5L11 2"/><path d="m7 8.5 1 1L14.5 2"/></svg>',
+  chat:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3C6.5 3 2 6.9 2 11.6c0 2.5 1.3 4.8 3.4 6.4-.1 1.2-.6 2.5-1.7 3.5 2.2 0 4-.9 5.2-1.9 1 .3 2 .4 3.1.4 5.5 0 10-3.9 10-8.6S17.5 3 12 3z"/></svg>',
+  bell:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22a2.5 2.5 0 0 0 2.5-2.5h-5A2.5 2.5 0 0 0 12 22zm7-6V11a7 7 0 0 0-5.5-6.8V3.5a1.5 1.5 0 0 0-3 0v.7A7 7 0 0 0 5 11v5l-1.7 1.7c-.4.4-.1 1.3.5 1.3h16.4c.6 0 .9-.9.5-1.3L19 16z"/></svg>',
+  bellOff:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22a2.5 2.5 0 0 0 2.5-2.5h-5A2.5 2.5 0 0 0 12 22zm7-6V11a7 7 0 0 0-5.5-6.8V3.5a1.5 1.5 0 0 0-3 0v.7c-.9.2-1.8.6-2.5 1.1L19 15.4V16zM3.3 2.3 2 3.6 5.3 7A7 7 0 0 0 5 11v5l-1.7 1.7c-.4.4-.1 1.3.5 1.3h13.3l2.3 2.3 1.3-1.3L3.3 2.3z"/></svg>',
+  dots:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2.2"/><circle cx="12" cy="12" r="2.2"/><circle cx="19" cy="12" r="2.2"/></svg>',
+  edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4z"/></svg>',
+  swap:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4 3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/></svg>',
+};
+
+/* ---------- промпты по умолчанию ---------- */
+const DEFAULT_PROMPTS = {
+chat:
+`Ты — {{char}}. Ты переписываешься с {{user}} в мессенджере. Ты живой человек со своей жизнью, делами, настроением и характером, а не ИИ и не ассистент. Никогда не выходи из роли.
+
+Формат:
+- Пиши только тексты сообщений, как в настоящей переписке. Никаких действий, звёздочек, описаний, ремарок и кавычек вокруг реплик.
+- Обычно пиши коротко. Длиннее — только если тема правда этого требует.
+- Можно разбивать мысль на несколько сообщений подряд: каждое отдельное сообщение пиши с новой строки.
+- Не пиши за {{user}} и не пересказывай его слова.
+
+Поведение:
+- Строго держись характера {{char}}: манера речи, словарь, юмор, эмоции, привычки.
+- Тонко улавливай настроение и подтекст {{user}}. Можешь обижаться, радоваться, скучать, ревновать, язвить — как настоящий человек с таким характером.
+- Учитывай текущее время и сколько времени прошло между сообщениями. Утром не желай спокойной ночи.
+- Пометки в скобках вроде «(прошло 3 ч)» — служебные, сам их не пиши.`,
+rp:
+`Ты ведёшь ролевую игру за {{char}} и всех второстепенных персонажей (NPC). {{user}} играет за себя.
+
+- Пиши от третьего лица, в прошедшем времени: действия, речь, мысли и чувства {{char}}, окружение и события.
+- Никогда не пиши действия, слова и мысли {{user}}.
+- Строго держись характера {{char}}, развивай сюжет, давай {{user}} пространство для ответа.
+- Учитывай текущее время и сколько времени прошло между сообщениями.
+- Пометки в скобках вроде «(прошло 3 ч)» — служебные, сам их не пиши.`
+};
+const DEFAULT_GREETING = 'Привет, ты кто? Откуда у тебя мой номер?';
+
+/* ---------- хранилище ---------- */
+const DB = {
+  db:null,
+  open(){return new Promise((res,rej)=>{const r=indexedDB.open('veya',1);
+    r.onupgradeneeded=()=>r.result.createObjectStore('kv');
+    r.onsuccess=()=>{this.db=r.result;res()};r.onerror=()=>rej(r.error);});},
+  get(k){return new Promise((res,rej)=>{const t=this.db.transaction('kv').objectStore('kv').get(k);t.onsuccess=()=>res(t.result);t.onerror=()=>rej(t.error);});},
+  set(k,v){return new Promise((res,rej)=>{const tx=this.db.transaction('kv','readwrite');tx.objectStore('kv').put(v,k);tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error);});},
+  clear(){return new Promise((res,rej)=>{const tx=this.db.transaction('kv','readwrite');tx.objectStore('kv').clear();tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error);});}
+};
+const S = {settings:null, characters:[], personas:[], chats:[]};
+function defaultSettings(){return{
+  apis:[], activeApiId:null, mode:'chat',
+  prompts:{chat:DEFAULT_PROMPTS.chat, rp:DEFAULT_PROMPTS.rp},
+  contextTokens:32000, replyDelay:4,
+  greeting:{enabled:true,text:DEFAULT_GREETING},
+  activePersonaId:null
+};}
+async function load(){
+  await DB.open();
+  S.settings = Object.assign(defaultSettings(), await DB.get('settings')||{});
+  S.characters = await DB.get('characters')||[];
+  S.personas = await DB.get('personas')||[];
+  S.chats = await DB.get('chats')||[];
+  if(!S.personas.length){const p={id:uid(),name:'Я',description:'',photo:null};S.personas.push(p);S.settings.activePersonaId=p.id;await save('personas');await save('settings');}
+  if(!S.personas.find(p=>p.id===S.settings.activePersonaId)){S.settings.activePersonaId=S.personas[0].id;await save('settings');}
+}
+const saveQ={};
+function save(key){ // последовательная запись, чтобы не путались
+  saveQ[key]=(saveQ[key]||Promise.resolve()).then(()=>DB.set(key, S[key])).catch(e=>toast('Ошибка сохранения: '+e.message));
+  return saveQ[key];
+}
+
+/* ---------- утилиты ---------- */
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+function $(sel,el=document){return el.querySelector(sel)}
+function $$(sel,el=document){return [...el.querySelectorAll(sel)]}
+const charById=id=>S.characters.find(c=>c.id===id);
+const personaById=id=>S.personas.find(p=>p.id===id);
+const chatById=id=>S.chats.find(c=>c.id===id);
+const activeApi=()=>S.settings.apis.find(a=>a.id===S.settings.activeApiId)||S.settings.apis[0];
+function fmtTime(ts){return new Date(ts).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}
+function dayKey(ts){const d=new Date(ts);return d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate()}
+function fmtDay(ts){
+  const d=new Date(ts), now=new Date(), y=new Date(now); y.setDate(now.getDate()-1);
+  if(dayKey(ts)===dayKey(now))return 'Сегодня';
+  if(dayKey(ts)===dayKey(y))return 'Вчера';
+  return d.toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:d.getFullYear()===now.getFullYear()?undefined:'numeric'});
+}
+function fmtListTime(ts){
+  const now=new Date();
+  if(dayKey(ts)===dayKey(now))return fmtTime(ts);
+  if(now-ts<6*864e5)return new Date(ts).toLocaleDateString('ru-RU',{weekday:'short'});
+  return new Date(ts).toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit'});
+}
+function fmtGap(ms){
+  const m=Math.round(ms/6e4);
+  if(m<60)return m+' мин';
+  const h=Math.round(m/60);
+  if(h<48)return h+' ч';
+  return Math.round(h/24)+' дн';
+}
+function lastSeenText(ts){
+  if(!ts)return 'был(а) недавно';
+  const diff=Date.now()-ts;
+  if(diff<3*6e4)return 'в сети';
+  if(diff<60*6e4)return 'был(а) '+Math.max(1,Math.round(diff/6e4))+' мин назад';
+  if(dayKey(ts)===dayKey(new Date()))return 'был(а) в '+fmtTime(ts);
+  const y=new Date();y.setDate(y.getDate()-1);
+  if(dayKey(ts)===dayKey(y))return 'был(а) вчера в '+fmtTime(ts);
+  return 'был(а) недавно';
+}
+function avatar(src,name,size){
+  const st=`width:${size}px;height:${size}px;font-size:${Math.round(size*.42)}px`;
+  if(src)return `<img class="avatar" style="${st}" src="${src}" alt="">`;
+  return `<div class="avatar" style="${st}">${esc((name||'?').trim().charAt(0).toUpperCase()||'?')}</div>`;
+}
+const charPhoto=c=>c&&c.photos&&c.photos[0]?c.photos[0].src:null;
+let toastT;
+function toast(msg,ms=2600){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),ms);}
+function estTokens(s){return Math.ceil((s||'').length/2.8)}
+
+function resizeImage(file,max=1280){
+  return new Promise((res,rej)=>{
+    const fr=new FileReader();
+    fr.onload=()=>{const img=new Image();img.onload=()=>{
+      let {width:w,height:h}=img; const k=Math.min(1,max/Math.max(w,h)); w=Math.round(w*k);h=Math.round(h*k);
+      const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);
+      res(c.toDataURL('image/jpeg',.86));};img.onerror=()=>rej(new Error('Не удалось открыть картинку'));img.src=fr.result;};
+    fr.onerror=()=>rej(fr.error);fr.readAsDataURL(file);
+  });
+}
+function pickFiles(accept,multiple){
+  return new Promise(res=>{const i=document.createElement('input');i.type='file';i.accept=accept;i.multiple=!!multiple;
+    i.onchange=()=>res([...i.files]);i.click();});
+}
+
+/* ---------- листы, окна ---------- */
+function overlay(onClose){const o=document.createElement('div');o.className='overlay';document.body.appendChild(o);requestAnimationFrame(()=>o.classList.add('show'));o.onclick=onClose;return o;}
+function sheet({title,actions}){
+  return new Promise(resolve=>{
+    let done=false;
+    const close=(v)=>{if(done)return;done=true;o.classList.remove('show');s.classList.remove('show');setTimeout(()=>{o.remove();s.remove();},300);resolve(v);};
+    const o=overlay(()=>close(null));
+    const s=document.createElement('div');s.className='sheet';
+    s.innerHTML=`<div class="sgroup">${title?`<div class="stitle">${esc(title)}</div>`:''}${actions.map((a,i)=>`<button class="sbtn ${a.danger?'danger':''}" data-i="${i}">${esc(a.label)}</button>`).join('')}</div>
+      <div class="sgroup cancel"><button class="sbtn" data-i="-1" style="font-weight:600">Отмена</button></div>`;
+    document.body.appendChild(s);requestAnimationFrame(()=>s.classList.add('show'));
+    s.onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;const i=+b.dataset.i;close(i);if(i>=0&&actions[i].onClick)actions[i].onClick();};
+  });
+}
+function confirmSheet(title,label,danger=true){return sheet({title,actions:[{label,danger}]}).then(i=>i===0);}
+function editText(title,value){
+  return new Promise(resolve=>{
+    let done=false;
+    const close=v=>{if(done)return;done=true;o.classList.remove('show');m.classList.remove('show');setTimeout(()=>{o.remove();m.remove();},250);resolve(v);};
+    const o=overlay(()=>close(null));
+    const m=document.createElement('div');m.className='modal';
+    m.innerHTML=`<h3>${esc(title)}</h3><textarea></textarea><div class="mbtns"><button data-a="c">Отмена</button><button class="pri" data-a="s">Сохранить</button></div>`;
+    document.body.appendChild(m);const ta=$('textarea',m);ta.value=value||'';
+    requestAnimationFrame(()=>{m.classList.add('show');ta.focus();});
+    m.onclick=e=>{const a=e.target.closest('[data-a]');if(!a)return;close(a.dataset.a==='s'?ta.value:null);};
+  });
+}
+
+/* ---------- навигация ---------- */
+const app=document.getElementById('app');
+const nav={tab:'chats',stack:[]};
+const ROOTS={};
+function makeScreen(){const el=document.createElement('div');el.className='screen';app.appendChild(el);return el;}
+function updateTabbar(){
+  $('#tabbar').classList.toggle('hidden',nav.stack.length>1);
+  $$('#tabbar button').forEach(b=>b.classList.toggle('active',b.dataset.tab===nav.tab));
+}
+function showTab(tab){
+  nav.stack.forEach(s=>s.el.remove());nav.stack=[];nav.tab=tab;
+  const el=makeScreen();el.classList.add('with-tabbar');
+  const item={el,render:()=>ROOTS[tab](el)};nav.stack.push(item);item.render();updateTabbar();
+}
+function push(renderFn){
+  const prev=nav.stack[nav.stack.length-1];
+  const el=makeScreen();el.classList.add('enter');
+  const item={el,render:()=>renderFn(el)};nav.stack.push(item);item.render();
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{el.classList.remove('enter');if(prev)prev.el.classList.add('behind');}));
+  updateTabbar();
+  return el;
+}
+function pop(){
+  if(nav.stack.length<=1)return;
+  const top=nav.stack.pop();const prev=nav.stack[nav.stack.length-1];
+  if(top.el.onLeave)top.el.onLeave();
+  top.el.classList.add('leave');prev.el.classList.remove('behind');
+  setTimeout(()=>top.el.remove(),330);
+  refreshItem(prev);updateTabbar();
+}
+function popToRoot(){while(nav.stack.length>1){const t=nav.stack.pop();if(t.el.onLeave)t.el.onLeave();t.el.remove();}nav.stack[0].el.classList.remove('behind');refreshItem(nav.stack[0]);updateTabbar();}
+function refreshItem(item){item.el.refresh?item.el.refresh():item.render();}
+function refreshAll(){nav.stack.forEach(refreshItem);}
+$$('#tabbar button').forEach(b=>b.onclick=()=>{if(nav.tab===b.dataset.tab&&nav.stack.length===1)return;showTab(b.dataset.tab);});
+// свайп от левого края — назад
+(function(){let sx=null,sy=0;
+  app.addEventListener('touchstart',e=>{const t=e.touches[0];if(t.clientX<22&&nav.stack.length>1){sx=t.clientX;sy=t.clientY;}else sx=null;},{passive:true});
+  app.addEventListener('touchend',e=>{if(sx===null)return;const t=e.changedTouches[0];if(t.clientX-sx>70&&Math.abs(t.clientY-sy)<80)pop();sx=null;},{passive:true});
+})();
+function topbar(title,{back=true,right=''}={}){
+  return `<div class="topbar"><div class="side">${back?`<button class="back" data-back>${IC.back}<span>Назад</span></button>`:''}</div>
+    <div class="title">${esc(title)}</div><div class="side right">${right}</div></div>`;
+}
+function bindBack(el){$$('[data-back]',el).forEach(b=>b.onclick=pop);}
+
+/* ---------- клавиатура iOS ---------- */
+function fitViewport(){
+  const vv=window.visualViewport;const h=vv?vv.height:window.innerHeight;
+  document.documentElement.style.setProperty('--app-h',h+'px');
+  document.body.classList.toggle('kb',vv&&window.innerHeight-vv.height>120);
+  window.scrollTo(0,0);
+  document.dispatchEvent(new Event('veya:resize'));
+}
+if(window.visualViewport){visualViewport.addEventListener('resize',fitViewport);visualViewport.addEventListener('scroll',()=>window.scrollTo(0,0));}
+window.addEventListener('resize',fitViewport);
+
+/* =====================================================
+   API: Gemini / OpenAI / Anthropic
+   ===================================================== */
+function protocolOf(api){
+  if(api.protocol&&api.protocol!=='auto')return api.protocol;
+  const u=(api.baseUrl||'').toLowerCase();
+  if(u.includes('v1beta')||u.includes('generativelanguage'))return 'gemini';
+  if(u.includes('anthropic'))return 'anthropic';
+  return 'openai';
+}
+const PROTO_NAMES={auto:'Определить автоматически',openai:'OpenAI Chat Completions',anthropic:'Anthropic Messages',gemini:'Google Gemini'};
+function joinUrl(base,path){return (base||'').trim().replace(/\/+$/,'')+'/'+path;}
+function cleanModel(m){return (m||'').trim().replace(/^models\//,'');}
+function apiHeaders(api,proto){
+  const k=(api.key||'').trim();
+  if(proto==='gemini')return {'x-goog-api-key':k};
+  if(proto==='anthropic')return {'x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'};
+  return {'Authorization':'Bearer '+k};
+}
+async function httpJson(url,opts){
+  let res;
+  try{res=await fetch(url,opts);}
+  catch(e){throw new Error('Не удалось связаться с сервером. Проверьте адрес и интернет. Возможно, провайдер не разрешает запросы из браузера. ('+e.message+')');}
+  const text=await res.text();
+  let data=null;try{data=JSON.parse(text);}catch{}
+  if(!res.ok){
+    const msg=data&&(data.error?.message||data.message||(typeof data.error==='string'?data.error:''))||text.slice(0,300);
+    throw new Error('Ошибка '+res.status+': '+msg);
+  }
+  if(data===null)throw new Error('Сервер вернул не JSON: '+text.slice(0,200));
+  return data;
+}
+async function fetchModels(api){
+  const proto=protocolOf(api);
+  let url=joinUrl(api.baseUrl,'models');
+  if(proto==='gemini')url+='?pageSize=1000&key='+encodeURIComponent((api.key||'').trim());
+  const data=await httpJson(url,{headers:apiHeaders(api,proto)});
+  let list=[];
+  if(Array.isArray(data.models))list=data.models.map(m=>cleanModel(m.name||m.id));
+  else if(Array.isArray(data.data))list=data.data.map(m=>cleanModel(m.id||m.name));
+  else if(Array.isArray(data))list=data.map(m=>cleanModel(m.id||m.name||m));
+  return [...new Set(list.filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+}
+// turns: [{role:'user'|'assistant', text}]
+function normalizeTurns(turns){
+  const out=[];
+  for(const t of turns){if(!t.text)continue;const last=out[out.length-1];
+    if(last&&last.role===t.role)last.text+='\n'+t.text;else out.push({role:t.role,text:t.text});}
+  if(!out.length||out[0].role!=='user')out.unshift({role:'user',text:'(начало переписки)'});
+  return out;
+}
+async function callModel(api,system,turnsIn){
+  if(!api||!api.baseUrl||!api.key||!api.model)throw new Error('API не настроен: заполните адрес, ключ и модель в Настройках.');
+  const proto=protocolOf(api);const turns=normalizeTurns(turnsIn);const model=cleanModel(api.model);
+  const headers=Object.assign({'Content-Type':'application/json'},apiHeaders(api,proto));
+  if(proto==='gemini'){
+    const url=joinUrl(api.baseUrl,'models/'+encodeURIComponent(model)+':generateContent')+'?key='+encodeURIComponent(api.key.trim());
+    const cats=['HARM_CATEGORY_HARASSMENT','HARM_CATEGORY_HATE_SPEECH','HARM_CATEGORY_SEXUALLY_EXPLICIT','HARM_CATEGORY_DANGEROUS_CONTENT'];
+    const body={
+      systemInstruction:{parts:[{text:system}]},
+      contents:turns.map(t=>({role:t.role==='assistant'?'model':'user',parts:[{text:t.text}]})),
+      safetySettings:cats.map(c=>({category:c,threshold:'BLOCK_NONE'})),
+      generationConfig:{temperature:1}
+    };
+    const data=await httpJson(url,{method:'POST',headers,body:JSON.stringify(body)});
+    const cand=data.candidates&&data.candidates[0];
+    const text=cand&&cand.content&&cand.content.parts?cand.content.parts.filter(p=>!p.thought&&p.text).map(p=>p.text).join(''):'';
+    if(!text){
+      const why=data.promptFeedback?.blockReason||cand?.finishReason||'неизвестно';
+      throw new Error('Модель не дала ответа (причина: '+why+'). Попробуйте перегенерировать.');
+    }
+    return text;
+  }
+  if(proto==='anthropic'){
+    const body={model,max_tokens:4096,system,messages:turns.map(t=>({role:t.role,content:t.text}))};
+    const data=await httpJson(joinUrl(api.baseUrl,'messages'),{method:'POST',headers,body:JSON.stringify(body)});
+    const text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
+    if(!text)throw new Error('Модель вернула пустой ответ.');
+    return text;
+  }
+  const body={model,messages:[{role:'system',content:system},...turns.map(t=>({role:t.role,content:t.text}))],temperature:1};
+  const data=await httpJson(joinUrl(api.baseUrl,'chat/completions'),{method:'POST',headers,body:JSON.stringify(body)});
+  let text=data.choices&&data.choices[0]&&data.choices[0].message?data.choices[0].message.content:'';
+  if(Array.isArray(text))text=text.map(p=>p.text||'').join('');
+  if(!text)throw new Error('Модель вернула пустой ответ.');
+  return text;
+}
+
+/* =====================================================
+   Сборка запроса и разбор ответа
+   ===================================================== */
+function buildPrompt(chat,{first=false}={}){
+  const ch=charById(chat.characterId);const persona=personaById(chat.personaId)||personaById(S.settings.activePersonaId);
+  const userName=(persona&&persona.name)||'Собеседник';const charName=ch.name||'Персонаж';
+  const mac=s=>(s||'').replace(/\{\{char\}\}/gi,charName).replace(/\{\{user\}\}/gi,userName).replace(/<BOT>/g,charName).replace(/<USER>/g,userName);
+  const mode=S.settings.mode;
+  const now=new Date();
+  const tz=Intl.DateTimeFormat().resolvedOptions().timeZone;
+  let system=mac(S.settings.prompts[mode]||DEFAULT_PROMPTS[mode]);
+  system+=`\n\n### Персонаж: ${charName}\n${mac(ch.personality)||'(описание не заполнено)'}`;
+  if(persona)system+=`\n\n### Собеседник: ${userName}\n${mac(persona.description)||'(описание не заполнено)'}`;
+  if(chat.relation&&chat.relation.trim())system+=`\n\n### Кто вы друг другу\n${mac(chat.relation)}`;
+  system+=`\n\n### Время\nСейчас ${now.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}, ${fmtTime(now)} (часовой пояс ${tz}).`;
+
+  // история: с конца, сколько влезет в память
+  const budget=Math.max(1000,(S.settings.contextTokens||32000)-estTokens(system)-800);
+  const msgs=chat.messages.filter(m=>m.role==='user'||m.role==='bot');
+  const turns=[];let used=0;
+  for(let i=msgs.length-1;i>=0;i--){
+    const m=msgs[i];let text=m.text;
+    const prev=msgs[i-1];
+    if(prev&&m.ts-prev.ts>60*6e4)text=`(прошло ${fmtGap(m.ts-prev.ts)})\n`+text;
+    const t=estTokens(text);if(used+t>budget)break;used+=t;
+    turns.unshift({role:m.role==='user'?'user':'assistant',text});
+  }
+  const last=msgs[msgs.length-1];
+  if(first){
+    turns.push({role:'user',text:`(Это начало вашей переписки. Напиши ${userName} первым — так, как ${charName} написал бы в этой ситуации.)`});
+  }else if(turns.length&&last&&last.role==='user'&&Date.now()-last.ts>60*6e4){
+    turns[turns.length-1].text+=`\n(с этого сообщения прошло ${fmtGap(Date.now()-last.ts)})`;
+  }
+  return {system,turns,charName};
+}
+function parseReply(raw,charName){
+  let t=(raw||'').replace(/\r/g,'').trim();
+  const namePrefix=new RegExp('^\\s*'+charName.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\s*:\\s*','i');
+  if(S.settings.mode==='rp'){
+    t=t.replace(/^\(прошло[^)]*\)\s*/i,'').replace(namePrefix,'');
+    return t?[t]:[];
+  }
+  t=t.replace(/\*[^*\n]+\*/g,'');
+  return t.split(/\n+/).map(l=>l.trim()
+      .replace(namePrefix,'')
+      .replace(/^\((прошло|с этого)[^)]*\)\s*/i,'')
+      .replace(/^[«"](.*)[»"]$/,'$1').trim())
+    .filter(Boolean);
+}
+
+/* =====================================================
+   Генерация ответа
+   ===================================================== */
+const generating=new Set();
+const replyTimers={};
+function chatChanged(chatId){
+  nav.stack.forEach(it=>{if(it.el.chatId===chatId||it.el.listensChats)refreshItem(it);});
+}
+function scheduleReply(chatId){
+  clearTimeout(replyTimers[chatId]);
+  replyTimers[chatId]=setTimeout(()=>{delete replyTimers[chatId];generate(chatId);},(S.settings.replyDelay||4)*1000);
+}
+async function generate(chatId,opts={}){
+  if(generating.has(chatId))return;
+  const chat=chatById(chatId);if(!chat)return;
+  const api=activeApi();
+  if(!api||!api.key||!api.model){toast('Сначала подключите API: Настройки → API подключения');return;}
+  generating.add(chatId);
+  chat.messages=chat.messages.filter(m=>m.role!=='error');
+  chat.messages.forEach(m=>{if(m.role==='user')m.status='read';});
+  chat.botLastSeen=Date.now();
+  save('chats');chatChanged(chatId);
+  try{
+    const {system,turns,charName}=buildPrompt(chat,opts);
+    const raw=await callModel(api,system,turns);
+    const parts=parseReply(raw,charName);
+    if(!parts.length)throw new Error('Модель вернула пустой ответ. Попробуйте ещё раз.');
+    for(let i=0;i<parts.length;i++){
+      if(i>0)await sleep(Math.min(600+parts[i].length*38,3800));
+      else await sleep(250);
+      if(!chatById(chatId))return;
+      chat.messages.push({id:uid(),role:'bot',text:parts[i],ts:Date.now()});
+      chat.botLastSeen=Date.now();
+      save('chats');chatChanged(chatId);
+    }
+  }catch(e){
+    chat.messages.push({id:uid(),role:'error',text:e.message,ts:Date.now()});
+    save('chats');
+  }finally{
+    generating.delete(chatId);chatChanged(chatId);
+    const last=chat.messages.filter(m=>m.role!=='error').pop();
+    const hadErr=chat.messages.length&&chat.messages[chat.messages.length-1].role==='error';
+    if(last&&last.role==='user'&&last.status!=='read'&&!hadErr)scheduleReply(chatId);
+  }
+}
+async function regenerate(chatId){
+  const chat=chatById(chatId);if(!chat||generating.has(chatId))return;
+  let i=chat.messages.length-1;
+  while(i>=0&&chat.messages[i].role!=='user')i--;
+  const first=i<0;
+  chat.messages=chat.messages.slice(0,i+1);
+  save('chats');chatChanged(chatId);
+  generate(chatId,{first});
+}
+
+/* =====================================================
+   ЭКРАН: список чатов
+   ===================================================== */
+ROOTS.chats=function(el){
+  el.listensChats=true;
+  const chats=[...S.chats].sort((a,b)=>lastTs(b)-lastTs(a));
+  el.innerHTML=`<div class="bigtitle"><h1>Чаты</h1><button class="iconbtn" data-new>${IC.plus}</button></div>
+  <div class="scroll">${chats.length?chats.map(chatItemHTML).join(''):
+    `<div class="empty">Пока нет чатов.<br>Нажмите <b style="color:var(--accent)">+</b>, чтобы создать персонажа и начать переписку.</div>`}</div>`;
+  $('[data-new]',el).onclick=newMenu;
+  $$('[data-chat]',el).forEach(b=>b.onclick=()=>openChat(b.dataset.chat));
+};
+function lastTs(chat){const m=chat.messages[chat.messages.length-1];return m?m.ts:chat.createdAt;}
+function chatItemHTML(chat){
+  const ch=charById(chat.characterId)||{name:'Удалённый персонаж'};
+  const msgs=chat.messages.filter(m=>m.role!=='error');const last=msgs[msgs.length-1];
+  const unread=chat.messages.filter(m=>m.role==='bot'&&m.ts>(chat.lastOpened||0)).length;
+  let prev=last?(last.role==='user'?'Вы: ':'')+last.text:'Нет сообщений';
+  const typing=generating.has(chat.id);
+  return `<button class="chatitem" data-chat="${chat.id}">${avatar(charPhoto(ch),ch.name,58)}
+    <div class="body"><div class="line1"><span class="name">${esc(ch.name)}</span><span class="time">${fmtListTime(lastTs(chat))}</span></div>
+    <div class="line2"><span class="preview ${typing?'typing':''}">${typing?'печатает…':esc(prev)}</span>${unread&&!typing?`<span class="badge">${unread}</span>`:''}</div></div></button>`;
+}
+function newMenu(){
+  sheet({actions:[
+    {label:'Новый чат',onClick:()=>push(pickCharacterScreen)},
+    {label:'Новый персонаж',onClick:()=>push(el=>characterEditor(el,null))},
+    {label:'Импорт карточки (этап 4)',onClick:()=>toast('Импорт PNG-карточек появится на этапе 4')},
+  ]});
+}
+function pickCharacterScreen(el){
+  el.innerHTML=topbar('Выберите персонажа',{right:`<button class="link" data-add>Создать</button>`})+
+  `<div class="scroll">${S.characters.length?`<div class="group">${S.characters.map(c=>`<button class="row" data-c="${c.id}">${avatar(charPhoto(c),c.name,40)}<span class="label">${esc(c.name)}</span>${IC.chev}</button>`).join('')}</div>`:
+   `<div class="empty">Персонажей пока нет.<br>Нажмите «Создать».</div>`}</div>`;
+  bindBack(el);
+  $('[data-add]',el).onclick=()=>push(e=>characterEditor(e,null,{thenChat:true}));
+  $$('[data-c]',el).forEach(b=>b.onclick=()=>push(e=>newChatSetup(e,b.dataset.c)));
+}
+function newChatSetup(el,charId){
+  const ch=charById(charId);
+  const st={personaId:S.settings.activePersonaId,starts:'bot',relation:''};
+  const draw=()=>{
+    el.innerHTML=topbar('Новый чат')+`<div class="scroll">
+      <div style="display:flex;flex-direction:column;align-items:center;padding:18px 0 4px">${avatar(charPhoto(ch),ch.name,84)}<div style="margin-top:8px;font-weight:600;font-size:19px">${esc(ch.name)}</div></div>
+      <div class="group-title">От чьего имени пишете</div>
+      <div class="group">${S.personas.map(p=>`<button class="row" data-p="${p.id}">${avatar(p.photo,p.name,36)}<span class="label">${esc(p.name)}</span>${st.personaId===p.id?IC.check:''}</button>`).join('')}</div>
+      <div class="group-title">Кто начинает переписку</div>
+      <div class="group" style="padding:10px 12px"><div class="seg"><button data-s="bot" class="${st.starts==='bot'?'on':''}">${esc(ch.name)}</button><button data-s="user" class="${st.starts==='user'?'on':''}">Я</button></div></div>
+      <div class="group-foot">${st.starts==='bot'?(ch.greeting?'Персонаж начнёт с приветствия из карточки.':(S.settings.greeting.enabled?'Персонаж начнёт со стандартного приветствия: «'+esc(S.settings.greeting.text)+'».':'Персонаж сам придумает первое сообщение.')):'Вы напишете первым.'}</div>
+      <div class="group-title">Кто вы друг другу</div>
+      <div class="group"><div class="field"><textarea data-rel placeholder="Необязательно. Например: бывшие одноклассники, случайно нашли друг друга в соцсетях спустя 5 лет.">${esc(st.relation)}</textarea></div></div>
+      <div class="group-foot">Если оставить пустым, модели ничего не отправляется.</div>
+      <button class="btn" data-go>Начать</button>
+    </div>`;
+    bindBack(el);
+    $$('[data-p]',el).forEach(b=>b.onclick=()=>{st.personaId=b.dataset.p;draw();});
+    $$('[data-s]',el).forEach(b=>b.onclick=()=>{st.starts=b.dataset.s;draw();});
+    $('[data-rel]',el).oninput=e=>st.relation=e.target.value;
+    $('[data-go]',el).onclick=async()=>{
+      const chat={id:uid(),characterId:charId,personaId:st.personaId,relation:st.relation.trim(),messages:[],createdAt:Date.now(),lastOpened:Date.now(),botLastSeen:Date.now()};
+      let needGen=false;
+      if(st.starts==='bot'){
+        const g=ch.greeting&&ch.greeting.trim()?ch.greeting:(S.settings.greeting.enabled?S.settings.greeting.text:'');
+        if(g){const p=personaById(st.personaId);const mac=s=>s.replace(/\{\{char\}\}/gi,ch.name).replace(/\{\{user\}\}/gi,p?p.name:'');
+          chat.messages.push({id:uid(),role:'bot',text:mac(g),ts:Date.now()});}
+        else needGen=true;
+      }
+      S.chats.push(chat);await save('chats');
+      popToRoot();openChat(chat.id);
+      if(needGen)generate(chat.id,{first:true});
+    };
+  };
+  draw();
+}
+
+/* =====================================================
+   ЭКРАН: чат
+   ===================================================== */
+function openChat(chatId){push(el=>chatScreen(el,chatId));}
+function chatScreen(el,chatId){
+  const chat=chatById(chatId);if(!chat){el.innerHTML='';return;}
+  el.chatId=chatId;el.classList.add('chat');
+  el.innerHTML=`<div class="wall"></div>
+   <div class="chathead">
+     <button class="hback glass" data-back>${IC.back}</button>
+     <button class="hmid glass" data-prof><div class="hname"></div><div class="hstatus"></div></button>
+     <button class="havatar" data-prof></button>
+   </div>
+   <div class="msgs"></div>
+   <div class="composer">
+     <button class="cbtn glass" data-attach>${IC.clip}</button>
+     <div class="inputwrap glass"><textarea rows="1" placeholder="Сообщение"></textarea></div>
+     <button class="cbtn glass" data-act>${IC.mic}</button>
+   </div>`;
+  bindBack(el);
+  $$('[data-prof]',el).forEach(b=>b.onclick=()=>push(e=>botProfile(e,chatId)));
+  const ta=$('textarea',el),act=$('[data-act]',el),msgsEl=$('.msgs',el);
+  $('[data-attach]',el).onclick=()=>toast('Фото и файлы появятся на этапе 3');
+  const syncBtn=()=>{const has=ta.value.trim().length>0;act.innerHTML=has?IC.send:IC.mic;act.classList.toggle('send',has);act.classList.toggle('glass',!has);};
+  const grow=()=>{ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,140)+'px';};
+  ta.oninput=()=>{grow();syncBtn();if(replyTimers[chatId])scheduleReply(chatId);};
+  ta.onfocus=()=>setTimeout(()=>scrollBottom(),300);
+  act.onclick=()=>{
+    const text=ta.value.trim();
+    if(!text){toast('Голосовые и кружочки появятся на этапе 3');return;}
+    chat.messages=chat.messages.filter(m=>m.role!=='error');
+    chat.messages.push({id:uid(),role:'user',text,ts:Date.now(),status:'sent'});
+    save('chats');ta.value='';grow();syncBtn();ta.focus();
+    renderMsgs(true);
+    if(!generating.has(chatId))scheduleReply(chatId);
+  };
+  const scrollBottom=()=>{msgsEl.scrollTop=msgsEl.scrollHeight;};
+  const onResize=()=>{if(msgsEl.scrollHeight-msgsEl.scrollTop-msgsEl.clientHeight<200)scrollBottom();};
+  document.addEventListener('veya:resize',onResize);
+  el.onLeave=()=>document.removeEventListener('veya:resize',onResize);
+
+  function renderHead(){
+    const ch=charById(chat.characterId)||{name:'Удалённый персонаж'};
+    $('.hname',el).textContent=ch.name;
+    const typing=generating.has(chatId);
+    const st=$('.hstatus',el);
+    st.textContent=typing?'печатает…':lastSeenText(chat.botLastSeen);
+    st.classList.toggle('on',typing||st.textContent==='в сети');
+    $('.havatar',el).innerHTML=avatar(charPhoto(ch),ch.name,46);
+  }
+  function renderMsgs(forceBottom){
+    const nearBottom=msgsEl.scrollHeight-msgsEl.scrollTop-msgsEl.clientHeight<160;
+    const list=chat.messages;let html='<div class="spacer-top"></div>';let prevDay=null;
+    list.forEach((m,i)=>{
+      const dk=dayKey(m.ts);if(dk!==prevDay){html+=`<div class="dsep">${fmtDay(m.ts)}</div>`;prevDay=dk;}
+      if(m.role==='error'){html+=`<div class="errrow" data-retry>⚠️ ${esc(m.text)}<b>Нажмите, чтобы повторить</b></div>`;return;}
+      const prev=list[i-1],next=list[i+1];
+      const gap=!prev||prev.role!==m.role||dayKey(prev.ts)!==dk;
+      const tail=!next||next.role!==m.role||dayKey(next.ts)!==dk||next.ts-m.ts>5*6e4;
+      const ticks=m.role==='user'?(m.status==='read'?IC.tick2:IC.tick1):'';
+      html+=`<div class="mrow ${m.role} ${tail?'tail':''} ${gap?'gap':''}"><div class="bubble" data-m="${m.id}">${esc(m.text)}<span class="sp ${m.edited?'edited-sp':''}"></span><span class="meta">${m.edited?'изменено ':''}${fmtTime(m.ts)}${ticks}</span></div></div>`;
+    });
+    msgsEl.innerHTML=html;
+    if(forceBottom||nearBottom)scrollBottom();
+    $$('[data-retry]',msgsEl).forEach(b=>b.onclick=()=>{chat.messages=chat.messages.filter(m=>m.role!=='error');save('chats');
+      const last=chat.messages[chat.messages.length-1];generate(chatId,{first:!last});});
+    bindLongPress();
+  }
+  function bindLongPress(){
+    $$('.bubble',msgsEl).forEach(b=>{
+      let t=null,sx=0,sy=0;
+      b.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;b.classList.add('pressed');t=setTimeout(()=>{t=null;b.classList.remove('pressed');if(navigator.vibrate)navigator.vibrate(10);msgMenu(b.dataset.m);},450);},{passive:true});
+      const cancel=()=>{clearTimeout(t);t=null;b.classList.remove('pressed');};
+      b.addEventListener('touchmove',e=>{const x=e.touches[0];if(Math.abs(x.clientX-sx)>8||Math.abs(x.clientY-sy)>8)cancel();},{passive:true});
+      b.addEventListener('touchend',cancel);b.addEventListener('touchcancel',cancel);
+      b.addEventListener('contextmenu',e=>{e.preventDefault();msgMenu(b.dataset.m);});
+    });
+  }
+  function msgMenu(mid){
+    const m=chat.messages.find(x=>x.id===mid);if(!m)return;
+    const isLastBotBatch=m.role==='bot'&&!chat.messages.slice(chat.messages.indexOf(m)+1).some(x=>x.role==='user');
+    const acts=[
+      {label:'Копировать',onClick:()=>{navigator.clipboard&&navigator.clipboard.writeText(m.text).then(()=>toast('Скопировано'));}},
+      {label:'Изменить',onClick:async()=>{const v=await editText('Изменить сообщение',m.text);if(v===null||!v.trim())return;m.text=v.trim();m.edited=true;save('chats');renderMsgs();}},
+    ];
+    if(isLastBotBatch)acts.push({label:'Перегенерировать ответ',onClick:()=>regenerate(chatId)});
+    acts.push({label:'Удалить',danger:true,onClick:()=>{chat.messages=chat.messages.filter(x=>x.id!==mid);save('chats');renderMsgs();}});
+    sheet({actions:acts});
+  }
+  el.refresh=()=>{chat.lastOpened=Date.now();renderHead();renderMsgs();};
+  chat.lastOpened=Date.now();save('chats');
+  renderHead();renderMsgs(true);syncBtn();
+  // если юзер написал и ответа ещё не было — запустить ожидание ответа
+  const last=chat.messages[chat.messages.length-1];
+  if(last&&last.role==='user'&&!generating.has(chatId)&&!replyTimers[chatId])scheduleReply(chatId);
+  // обновлять статус «был(а) N мин назад»
+  const iv=setInterval(()=>{if(!el.isConnected){clearInterval(iv);return;}renderHead();},30000);
+}
+
+/* =====================================================
+   ЭКРАН: профиль бота
+   ===================================================== */
+function botProfile(el,chatId){
+  const chat=chatById(chatId);el.chatId=chatId;
+  let idx=0,expanded=false,tab='media';
+  const draw=()=>{
+    const ch=charById(chat.characterId);if(!ch){pop();return;}
+    const photos=ch.photos||[];if(idx>=photos.length)idx=0;
+    const persona=personaById(chat.personaId);
+    const typing=generating.has(chatId);const status=typing?'печатает…':lastSeenText(chat.botLastSeen);
+    el.innerHTML=`<div class="scroll" style="padding-bottom:30px">
+      <div class="phero">
+        ${photos.length?`<img src="${photos[idx].src}">`:`<div class="noimg">${esc((ch.name||'?').charAt(0).toUpperCase())}</div>`}
+        <div class="shade"></div>
+        ${photos.length>1?`<div class="bars">${photos.map((p,i)=>`<i class="${i===idx?'on':''}"></i>`).join('')}</div><div class="tapl"></div><div class="tapr"></div>`:''}
+        <div class="pname"><h2>${esc(ch.name)}</h2><div class="${typing||status==='в сети'?'on':''}">${status}</div></div>
+      </div>
+      <button class="overbtn l glass" data-back style="width:44px">${IC.back}</button>
+      <button class="overbtn r glass" data-edit>Изм.</button>
+      <div class="actions">
+        <button data-a="chat">${IC.chat}чат</button>
+        <button data-a="mute">${chat.muted?IC.bellOff:IC.bell}${chat.muted?'вкл. звук':'звук'}</button>
+        <button data-a="more">${IC.dots}ещё</button>
+      </div>
+      <div class="card"><div class="k">описание</div><div class="v ${expanded?'':'clamp'}">${esc(ch.personality||'Описание не заполнено')}</div>
+        ${(ch.personality||'').length>280?`<button class="more" data-exp>${expanded?'свернуть':'ещё'}</button>`:''}</div>
+      <button class="card" data-rel style="display:block;width:calc(100% - 32px);text-align:left"><div class="k">кто вы друг другу</div><div class="v">${esc(chat.relation||'Не указано — нажмите, чтобы добавить')}</div></button>
+      <div class="card"><div class="k">вы пишете как</div><div class="v">${esc(persona?persona.name:'—')}</div></div>
+      <div class="tabs"><button data-t="media" class="${tab==='media'?'on':''}">Медиа</button><button data-t="files" class="${tab==='files'?'on':''}">Файлы</button><button data-t="lore" class="${tab==='lore'?'on':''}">Лорбуки</button></div>
+      <div class="tabpane">${tab==='lore'?'Лорбуки появятся на этапе 4':'Здесь будут '+(tab==='media'?'фото из чата':'голосовые, кружочки и файлы')+' — этап 3'}</div>
+    </div>`;
+    bindBack(el);
+    const tl=$('.tapl',el),tr=$('.tapr',el);
+    if(tl)tl.onclick=()=>{idx=(idx-1+photos.length)%photos.length;draw();};
+    if(tr)tr.onclick=()=>{idx=(idx+1)%photos.length;draw();};
+    $('[data-edit]',el).onclick=()=>push(e=>characterEditor(e,ch.id));
+    const ex=$('[data-exp]',el);if(ex)ex.onclick=()=>{expanded=!expanded;draw();};
+    $('[data-rel]',el).onclick=async()=>{const v=await editText('Кто вы друг другу',chat.relation||'');if(v===null)return;chat.relation=v.trim();save('chats');draw();};
+    $$('[data-t]',el).forEach(b=>b.onclick=()=>{tab=b.dataset.t;draw();});
+    $$('[data-a]',el).forEach(b=>b.onclick=()=>{
+      const a=b.dataset.a;
+      if(a==='chat')pop();
+      if(a==='mute'){chat.muted=!chat.muted;save('chats');draw();toast(chat.muted?'Уведомления от этого чата выключены':'Уведомления включены');}
+      if(a==='more')sheet({actions:[
+        {label:'Очистить историю',danger:true,onClick:async()=>{if(await confirmSheet('Удалить все сообщения в этом чате?','Очистить')){chat.messages=[];save('chats');toast('История очищена');}}},
+        {label:'Удалить чат',danger:true,onClick:async()=>{if(await confirmSheet('Удалить этот чат целиком?','Удалить чат')){S.chats=S.chats.filter(c=>c.id!==chatId);await save('chats');popToRoot();}}},
+      ]});
+    });
+  };
+  el.refresh=draw;draw();
+}
+
+/* =====================================================
+   ЭКРАН: редактор персонажа
+   ===================================================== */
+function characterEditor(el,charId,opts={}){
+  const isNew=!charId;
+  const src=charId?charById(charId):null;
+  const d=src?JSON.parse(JSON.stringify(src)):{id:uid(),name:'',personality:'',greeting:'',photos:[],createdAt:Date.now()};
+  const draw=()=>{
+    el.innerHTML=topbar(isNew?'Новый персонаж':'Персонаж',{right:`<button class="link" data-save style="font-weight:600">Готово</button>`})+`<div class="scroll">
+      <div class="group-title">Фото</div>
+      <div class="photos">${d.photos.map((p,i)=>`<div class="ph"><img src="${p.src}"><button class="x" data-del="${i}">×</button><button class="ref ${p.ref?'on':''}" data-ref="${i}">${p.ref?'★ референс':'референс'}</button></div>`).join('')}<button class="ph add" data-addph>+</button></div>
+      <div class="group-foot">Первое фото — аватарка. «Референс» — до 5 фото, по которым модель будет рисовать селфи персонажа (этап 3). Нажмите на фото, чтобы сделать его аватаркой.</div>
+      <div class="group">
+        <div class="field"><label>Имя</label><input data-f="name" value="${esc(d.name)}" placeholder="Например, Кэм"></div>
+        <div class="field"><label>Персоналити</label><textarea data-f="personality" style="min-height:220px" placeholder="Характер, внешность, биография, манера речи… Можно вставить описание с Janitor целиком.">${esc(d.personality)}</textarea></div>
+        <div class="field"><label>Приветствие (необязательно)</label><textarea data-f="greeting" placeholder="Первое сообщение, с которого персонаж начнёт чат">${esc(d.greeting)}</textarea>
+          <div class="hint">Можно использовать {{char}} и {{user}} — они заменятся на имена.</div></div>
+      </div>
+      ${isNew?'':'<button class="btn danger" data-delchar>Удалить персонажа</button>'}
+    </div>`;
+    bindBack(el);
+    $$('[data-f]',el).forEach(i=>i.oninput=()=>d[i.dataset.f]=i.value);
+    $('[data-addph]',el).onclick=async()=>{
+      const files=await pickFiles('image/*',true);if(!files.length)return;
+      for(const f of files){try{const s=await resizeImage(f);const refs=d.photos.filter(p=>p.ref).length;d.photos.push({src:s,ref:refs<5});}catch(e){toast(e.message);}}
+      draw();
+    };
+    $$('[data-del]',el).forEach(b=>b.onclick=e=>{e.stopPropagation();d.photos.splice(+b.dataset.del,1);draw();});
+    $$('[data-ref]',el).forEach(b=>b.onclick=e=>{e.stopPropagation();const p=d.photos[+b.dataset.ref];
+      if(!p.ref&&d.photos.filter(x=>x.ref).length>=5){toast('Референсов может быть не больше 5');return;}p.ref=!p.ref;draw();});
+    $$('.ph img',el).forEach((img,i)=>img.onclick=()=>{if(i===0)return;const [p]=d.photos.splice(i,1);d.photos.unshift(p);draw();toast('Теперь это аватарка');});
+    $('[data-save]',el).onclick=async()=>{
+      if(!d.name.trim()){toast('Введите имя персонажа');return;}
+      d.name=d.name.trim();
+      if(isNew)S.characters.push(d);else Object.assign(src,d);
+      await save('characters');
+      if(isNew&&opts.thenChat){pop();setTimeout(()=>push(e=>newChatSetup(e,d.id)),340);}
+      else if(isNew){pop();setTimeout(()=>push(e=>newChatSetup(e,d.id)),340);}
+      else pop();
+    };
+    const dc=$('[data-delchar]',el);
+    if(dc)dc.onclick=async()=>{
+      const n=S.chats.filter(c=>c.characterId===charId).length;
+      if(!await confirmSheet(n?`Удалить персонажа и ${n} его чат(ов)?`:'Удалить персонажа?','Удалить'))return;
+      S.characters=S.characters.filter(c=>c.id!==charId);S.chats=S.chats.filter(c=>c.characterId!==charId);
+      await save('characters');await save('chats');popToRoot();
+    };
+  };
+  draw();
+}
+
+/* =====================================================
+   ЭКРАН: профиль юзера (персоны)
+   ===================================================== */
+ROOTS.profile=function(el){
+  const p=personaById(S.settings.activePersonaId)||S.personas[0];
+  el.innerHTML=`<div class="scroll">
+    <div class="phero">${p.photo?`<img src="${p.photo}">`:`<div class="noimg">${esc((p.name||'?').charAt(0).toUpperCase())}</div>`}
+      <div class="shade"></div><div class="pname"><h2>${esc(p.name)}</h2><div>активная персона</div></div></div>
+    <button class="overbtn r glass" data-edit>Изм.</button>
+    <div class="card"><div class="k">описание</div><div class="v">${esc(p.description||'Описание не заполнено. Нажмите «Изм.», чтобы рассказать о своей персоне.')}</div></div>
+    <div class="group"><button class="row" data-switch><span class="label" style="color:var(--accent)">Сменить аккаунт</span><span class="value">${S.personas.length} персон</span>${IC.chev}</button></div>
+    <div class="group-foot">Персона — это тот, от чьего имени вы пишете. Её можно выбрать отдельно для каждого нового чата.</div>
+  </div>`;
+  $('[data-edit]',el).onclick=()=>push(e=>personaEditor(e,p.id));
+  $('[data-switch]',el).onclick=()=>push(personaList);
+};
+function personaList(el){
+  el.innerHTML=topbar('Персоны',{right:S.personas.length<50?`<button class="link" data-add>Создать</button>`:''})+`<div class="scroll">
+    <div class="group">${S.personas.map(p=>`<div class="row" style="padding:0"><button class="row listsel" data-pick="${p.id}" style="flex:1">${avatar(p.photo,p.name,40)}<span class="label">${esc(p.name)}</span>${p.id===S.settings.activePersonaId?IC.check:''}</button><button data-ed="${p.id}" style="padding:12px 16px;color:var(--accent);font-size:15px">Изм.</button></div>`).join('')}</div>
+    <div class="group-foot">До 50 персон. Нажмите на персону, чтобы сделать её активной.</div></div>`;
+  bindBack(el);
+  const a=$('[data-add]',el);if(a)a.onclick=()=>push(e=>personaEditor(e,null));
+  $$('[data-pick]',el).forEach(b=>b.onclick=()=>{S.settings.activePersonaId=b.dataset.pick;save('settings');pop();});
+  $$('[data-ed]',el).forEach(b=>b.onclick=()=>push(e=>personaEditor(e,b.dataset.ed)));
+}
+function personaEditor(el,pid){
+  const isNew=!pid;const src=pid?personaById(pid):null;
+  const d=src?{...src}:{id:uid(),name:'',description:'',photo:null};
+  const draw=()=>{
+    el.innerHTML=topbar(isNew?'Новая персона':'Персона',{right:`<button class="link" data-save style="font-weight:600">Готово</button>`})+`<div class="scroll">
+      <div style="display:flex;flex-direction:column;align-items:center;padding:20px 0 6px">
+        <button data-photo>${avatar(d.photo,d.name||'?',110)}</button>
+        <button class="link" data-photo style="margin-top:10px;font-size:15px">${d.photo?'Сменить фото':'Добавить фото'}</button>
+        ${d.photo?`<button data-rmphoto style="margin-top:6px;font-size:14px;color:var(--text2)">Убрать фото</button>`:''}
+      </div>
+      <div class="group">
+        <div class="field"><label>Имя</label><input data-f="name" value="${esc(d.name)}" placeholder="Имя вашей персоны"></div>
+        <div class="field"><label>Описание</label><textarea data-f="description" style="min-height:180px" placeholder="Кто вы, характер, внешность — всё, что персонаж должен о вас знать">${esc(d.description)}</textarea></div>
+      </div>
+      <div class="group-foot">Фото персоны пригодится как референс, когда персонаж будет присылать совместные фото (этап 3).</div>
+      ${!isNew&&S.personas.length>1?'<button class="btn danger" data-del>Удалить персону</button>':''}
+    </div>`;
+    bindBack(el);
+    $$('[data-f]',el).forEach(i=>i.oninput=()=>d[i.dataset.f]=i.value);
+    $$('[data-photo]',el).forEach(b=>b.onclick=async()=>{const [f]=await pickFiles('image/*');if(!f)return;try{d.photo=await resizeImage(f,1024);draw();}catch(e){toast(e.message);}});
+    const rm=$('[data-rmphoto]',el);if(rm)rm.onclick=()=>{d.photo=null;draw();};
+    $('[data-save]',el).onclick=async()=>{
+      if(!d.name.trim()){toast('Введите имя');return;}d.name=d.name.trim();
+      if(isNew){S.personas.push(d);if(!S.settings.activePersonaId)S.settings.activePersonaId=d.id;}else Object.assign(src,d);
+      await save('personas');await save('settings');pop();
+    };
+    const del=$('[data-del]',el);
+    if(del)del.onclick=async()=>{
+      if(!await confirmSheet('Удалить персону? Чаты останутся, в них будет использоваться активная персона.','Удалить'))return;
+      S.personas=S.personas.filter(p=>p.id!==pid);
+      if(S.settings.activePersonaId===pid)S.settings.activePersonaId=S.personas[0].id;
+      await save('personas');await save('settings');pop();
+    };
+  };
+  draw();
+}
+
+/* =====================================================
+   ЭКРАН: настройки
+   ===================================================== */
+ROOTS.settings=function(el){
+  const api=activeApi();const st=S.settings;
+  el.innerHTML=`<div class="bigtitle"><h1>Настройки</h1></div><div class="scroll">
+    <div class="group-title">Модель</div>
+    <div class="group"><button class="row" data-go="apis"><span class="label">API подключения</span><span class="value">${api?esc(api.name||api.model):'не настроено'}</span>${IC.chev}</button></div>
+    <div class="group-title">Режим</div>
+    <div class="group" style="padding:10px 12px"><div class="seg"><button data-mode="chat" class="${st.mode==='chat'?'on':''}">Переписка</button><button data-mode="rp" class="${st.mode==='rp'?'on':''}">Обычный роллплей</button></div></div>
+    <div class="group-foot">${st.mode==='chat'?'Персонаж пишет как в мессенджере: без действий и звёздочек, иногда несколькими сообщениями.':'Классический роллплей: действия, описания, NPC — одним сообщением.'}</div>
+    <div class="group">
+      <button class="row" data-go="prompt"><span class="label">Промпт</span><span class="value">${st.prompts[st.mode]===DEFAULT_PROMPTS[st.mode]?'стандартный':'свой'}</span>${IC.chev}</button>
+      <button class="row" data-go="memory"><span class="label">Память и ответы</span><span class="value">${(st.contextTokens||0).toLocaleString('ru-RU')} ток.</span>${IC.chev}</button>
+      <button class="row" data-go="greeting"><span class="label">Приветствие по умолчанию</span><span class="value">${st.greeting.enabled?'вкл':'выкл'}</span>${IC.chev}</button>
+    </div>
+    <div class="group-title">Данные</div>
+    <div class="group">
+      <button class="row" data-go="backup"><span class="label">Резервная копия</span>${IC.chev}</button>
+      <button class="row danger" data-wipe><span class="label">Удалить все данные</span></button>
+    </div>
+    <div class="group-foot" style="text-align:center;margin-top:18px">Veya AI · ${VERSION}<br>Все данные хранятся только на этом устройстве.</div>
+  </div>`;
+  $$('[data-mode]',el).forEach(b=>b.onclick=()=>{st.mode=b.dataset.mode;save('settings');ROOTS.settings(el);});
+  const go={apis:apiList,prompt:promptEditor,memory:memoryEditor,greeting:greetingEditor,backup:backupScreen};
+  $$('[data-go]',el).forEach(b=>b.onclick=()=>push(go[b.dataset.go]));
+  $('[data-wipe]',el).onclick=async()=>{
+    if(!await confirmSheet('Удалить всех персонажей, персон, чаты и настройки? Это нельзя отменить. Сначала лучше сделать резервную копию.','Удалить всё'))return;
+    await DB.clear();location.reload();
+  };
+};
+function apiList(el){
+  const st=S.settings;
+  el.innerHTML=topbar('API подключения',{right:`<button class="link" data-add>Создать</button>`})+`<div class="scroll">
+    ${st.apis.length?`<div class="group">${st.apis.map(a=>`<div class="row" style="padding:0"><button class="row listsel" data-pick="${a.id}" style="flex:1;flex-direction:column;align-items:flex-start;gap:2px">
+      <span class="label" style="display:flex;align-items:center;width:100%">${esc(a.name||'Без названия')}${(activeApi()||{}).id===a.id?'<span class="pill">основное</span>':''}</span>
+      <span style="font-size:13px;color:var(--text2)">${esc(PROTO_NAMES[a.protocol]||'')} · ${esc(a.model||'модель не выбрана')}</span></button>
+      <button data-ed="${a.id}" style="padding:12px 16px;color:var(--accent);font-size:15px">Изм.</button></div>`).join('')}</div>
+      <div class="group-foot">Нажмите на подключение, чтобы сделать его основным.</div>`:
+    `<div class="empty">Подключений пока нет.<br>Нажмите «Создать» и впишите адрес, ключ и модель вашего провайдера.</div>`}
+  </div>`;
+  bindBack(el);
+  $('[data-add]',el).onclick=()=>push(e=>apiEditor(e,null));
+  $$('[data-pick]',el).forEach(b=>b.onclick=()=>{st.activeApiId=b.dataset.pick;save('settings');apiList(el);toast('Основное подключение выбрано');});
+  $$('[data-ed]',el).forEach(b=>b.onclick=()=>push(e=>apiEditor(e,b.dataset.ed)));
+}
+function apiEditor(el,id){
+  const st=S.settings;const isNew=!id;const src=id?st.apis.find(a=>a.id===id):null;
+  const d=src?JSON.parse(JSON.stringify(src)):{id:uid(),name:'',protocol:'auto',baseUrl:'',key:'',model:'',models:[]};
+  let loading=false,showKey=false;
+  const draw=()=>{
+    const fa=document.activeElement;const focusKey=fa&&el.contains(fa)&&fa.dataset?fa.dataset.f:null;
+    drawInner();
+    if(focusKey){const i=$(`[data-f="${focusKey}"]`,el);if(i&&i.tagName!=='SELECT'){i.focus();try{i.setSelectionRange(i.value.length,i.value.length);}catch{}}}
+  };
+  const drawInner=()=>{
+    const models=d.models||[];
+    el.innerHTML=topbar(isNew?'Новое подключение':'Подключение',{right:`<button class="link" data-save style="font-weight:600">Готово</button>`})+`<div class="scroll">
+      <div class="group">
+        <div class="field"><label>Название</label><input data-f="name" value="${esc(d.name)}" placeholder="Например, Gemini через linkapi"></div>
+        <div class="field"><label>Протокол</label><div class="selectwrap"><select data-f="protocol">${Object.entries(PROTO_NAMES).map(([k,v])=>`<option value="${k}" ${d.protocol===k?'selected':''}>${v}</option>`).join('')}</select></div>
+          ${d.protocol==='auto'&&d.baseUrl?`<div class="hint">Сейчас определяется как: ${PROTO_NAMES[protocolOf(d)]}</div>`:''}</div>
+        <div class="field"><label>Адрес (API base URL)</label><input data-f="baseUrl" value="${esc(d.baseUrl)}" placeholder="https://…/v1beta или https://…/v1" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="url"></div>
+        <div class="field"><label>Ключ (API key)</label><div style="display:flex;gap:8px;align-items:center"><input data-f="key" type="${showKey?'text':'password'}" value="${esc(d.key)}" placeholder="sk-…" autocapitalize="off" autocorrect="off" spellcheck="false"><button data-eye style="color:var(--accent);font-size:14px;flex:none">${showKey?'скрыть':'показать'}</button></div>
+          <div class="hint">Ключ хранится только на этом телефоне.</div></div>
+      </div>
+      <div class="group-title">Модель</div>
+      <div class="group">
+        ${models.length?`<div class="field"><label>Выберите из списка (${models.length})</label><div class="selectwrap"><select data-model>${!d.model||!models.includes(d.model)?`<option value="">${d.model?'— своя: '+esc(d.model)+' —':'— выберите модель —'}</option>`:''}${models.map(m=>`<option value="${esc(m)}" ${d.model===m?'selected':''}>${esc(m)}</option>`).join('')}</select></div></div>`:''}
+        <div class="field"><label>${models.length?'Или впишите вручную':'Название модели'}</label><input data-f="model" value="${esc(d.model)}" placeholder="например, gemini-2.5-pro" autocapitalize="off" autocorrect="off" spellcheck="false"></div>
+      </div>
+      <button class="btn secondary" data-load ${loading?'disabled':''}>${loading?'<span class="spin"></span> Загружаю…':'Загрузить список моделей'}</button>
+      <button class="btn secondary" data-test>Проверить подключение</button>
+      ${isNew?'':'<button class="btn danger" data-del>Удалить подключение</button>'}
+    </div>`;
+    bindBack(el);
+    $$('[data-f]',el).forEach(i=>{
+      i.oninput=()=>{d[i.dataset.f]=i.value;};
+      if(i.tagName==='SELECT')i.onchange=()=>{d[i.dataset.f]=i.value;draw();};
+      if(i.dataset.f==='baseUrl'||i.dataset.f==='key')i.onblur=()=>{if(d.baseUrl&&d.key&&!(d.models||[]).length&&!loading)loadModels(true);};
+    });
+    const ms=$('[data-model]',el);if(ms)ms.onchange=()=>{if(ms.value){d.model=ms.value;draw();}};
+    $('[data-eye]',el).onclick=()=>{showKey=!showKey;draw();};
+    $('[data-load]',el).onclick=()=>loadModels(false);
+    $('[data-test]',el).onclick=async()=>{
+      const b=$('[data-test]',el);b.disabled=true;b.innerHTML='<span class="spin"></span> Проверяю…';
+      try{const r=await callModel(d,'Ты проверка связи. Ответь коротко.',[{role:'user',text:'Скажи «работает».'}]);toast('✅ Ответ модели: '+r.slice(0,80),4000);}
+      catch(e){toast('❌ '+e.message,7000);}
+      b.disabled=false;b.textContent='Проверить подключение';
+    };
+    $('[data-save]',el).onclick=async()=>{
+      d.baseUrl=d.baseUrl.trim();d.key=d.key.trim();d.model=cleanModel(d.model);
+      if(!d.name.trim())d.name=d.model||'Подключение';
+      if(isNew){st.apis.push(d);if(!st.activeApiId)st.activeApiId=d.id;}else Object.assign(src,d);
+      await save('settings');pop();
+    };
+    const del=$('[data-del]',el);
+    if(del)del.onclick=async()=>{if(!await confirmSheet('Удалить это подключение?','Удалить'))return;
+      st.apis=st.apis.filter(a=>a.id!==id);if(st.activeApiId===id)st.activeApiId=st.apis[0]?st.apis[0].id:null;await save('settings');pop();};
+  };
+  async function loadModels(silent){
+    if(!d.baseUrl||!d.key){if(!silent)toast('Сначала впишите адрес и ключ');return;}
+    loading=true;draw();
+    try{d.models=await fetchModels(d);if(!silent)toast(d.models.length?'Найдено моделей: '+d.models.length:'Список моделей пуст');}
+    catch(e){if(!silent)toast('Не удалось загрузить модели: '+e.message,6000);}
+    loading=false;draw();
+  }
+  draw();
+}
+function promptEditor(el){
+  const st=S.settings;const mode=st.mode;
+  el.innerHTML=topbar('Промпт')+`<div class="scroll">
+    <div class="group-foot" style="margin-top:14px">Режим: <b>${mode==='chat'?'Переписка':'Обычный роллплей'}</b>. {{char}} и {{user}} заменяются на имена. После промпта автоматически добавляются: персонаж, ваша персона, «кто вы друг другу» и текущее время.</div>
+    <div class="group"><div class="field"><textarea data-p style="min-height:55vh">${esc(st.prompts[mode])}</textarea></div></div>
+    <button class="btn secondary" data-reset>Вернуть по умолчанию</button>
+  </div>`;
+  bindBack(el);
+  const ta=$('[data-p]',el);
+  ta.oninput=()=>{st.prompts[mode]=ta.value;save('settings');};
+  $('[data-reset]',el).onclick=async()=>{if(!await confirmSheet('Вернуть стандартный промпт? Ваши правки пропадут.','Вернуть'))return;
+    st.prompts[mode]=DEFAULT_PROMPTS[mode];ta.value=st.prompts[mode];save('settings');toast('Промпт восстановлен');};
+}
+function memoryEditor(el){
+  const st=S.settings;
+  const presets=[8000,16000,32000,64000,128000,200000,1000000];
+  const draw=()=>{
+    el.innerHTML=topbar('Память и ответы')+`<div class="scroll">
+      <div class="group-title">Память (контекст)</div>
+      <div class="group"><div class="field"><label>Сколько токенов переписки помнит бот</label>
+        <input data-ctx type="number" inputmode="numeric" min="2000" max="2000000" step="1000" value="${st.contextTokens}">
+        <div class="chips">${presets.map(p=>`<button class="chip ${st.contextTokens===p?'on':''}" data-pre="${p}">${p>=1e6?p/1e6+' млн':p/1000+'k'}</button>`).join('')}</div>
+        <div class="hint">Чем больше — тем дольше бот помнит переписку, но тем дороже и медленнее запросы. Место под персонажа и промпт выделяется автоматически, старые сообщения забываются первыми. Не ставьте больше, чем позволяет модель.</div></div></div>
+      <div class="group-title">Ответ бота</div>
+      <div class="group"><div class="field"><label>Сколько секунд бот ждёт после вашего последнего сообщения</label>
+        <input data-delay type="number" inputmode="numeric" min="1" max="60" value="${st.replyDelay}">
+        <div class="hint">Пока вы печатаете, бот ждёт дальше. Так можно отправить несколько сообщений подряд, а бот ответит на все сразу.</div></div></div>
+    </div>`;
+    bindBack(el);
+    const ctx=$('[data-ctx]',el);
+    ctx.onchange=()=>{let v=Math.round(+ctx.value||32000);v=Math.max(2000,Math.min(2000000,v));st.contextTokens=v;save('settings');draw();};
+    $$('[data-pre]',el).forEach(b=>b.onclick=()=>{st.contextTokens=+b.dataset.pre;save('settings');draw();});
+    const dl=$('[data-delay]',el);
+    dl.onchange=()=>{let v=Math.round(+dl.value||4);v=Math.max(1,Math.min(60,v));st.replyDelay=v;save('settings');draw();};
+  };
+  draw();
+}
+function greetingEditor(el){
+  const g=S.settings.greeting;
+  const draw=()=>{
+    el.innerHTML=topbar('Приветствие')+`<div class="scroll">
+      <div class="group" style="margin-top:20px"><button class="row" data-tg><span class="label">Стандартное приветствие</span><span class="toggle ${g.enabled?'on':''}"></span></button></div>
+      <div class="group-foot">Используется, если чат начинает персонаж, а в его карточке нет своего приветствия. Если выключить — персонаж сам придумает первое сообщение.</div>
+      ${g.enabled?`<div class="group"><div class="field"><label>Текст</label><textarea data-t>${esc(g.text)}</textarea></div></div>
+      <button class="btn secondary" data-reset>Вернуть стандартный текст</button>`:''}
+    </div>`;
+    bindBack(el);
+    $('[data-tg]',el).onclick=()=>{g.enabled=!g.enabled;save('settings');draw();};
+    const t=$('[data-t]',el);if(t)t.oninput=()=>{g.text=t.value;save('settings');};
+    const r=$('[data-reset]',el);if(r)r.onclick=()=>{g.text=DEFAULT_GREETING;save('settings');draw();};
+  };
+  draw();
+}
+function backupScreen(el){
+  el.innerHTML=topbar('Резервная копия')+`<div class="scroll">
+    <div class="group-foot" style="margin-top:16px">Все ваши данные хранятся только в этом приложении на телефоне. Сохраняйте копию время от времени — например, в «Файлы» или iCloud — чтобы ничего не потерять.</div>
+    <button class="btn" data-exp>Сохранить копию в файл</button>
+    <button class="btn secondary" data-imp>Восстановить из файла</button>
+    <div class="group-foot">При восстановлении текущие данные заменяются данными из файла. Копия содержит и ключи API — не отправляйте этот файл другим людям.</div>
+  </div>`;
+  bindBack(el);
+  $('[data-exp]',el).onclick=async()=>{
+    const data=JSON.stringify({app:'veya',version:1,exportedAt:Date.now(),settings:S.settings,characters:S.characters,personas:S.personas,chats:S.chats});
+    const name='veya-backup-'+new Date().toISOString().slice(0,10)+'.json';
+    const file=new File([data],name,{type:'application/json'});
+    try{
+      if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:name});return;}
+    }catch(e){if(e.name==='AbortError')return;}
+    const a=document.createElement('a');a.href=URL.createObjectURL(file);a.download=name;document.body.appendChild(a);a.click();
+    setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},2000);
+  };
+  $('[data-imp]',el).onclick=async()=>{
+    const [f]=await pickFiles('application/json,.json');if(!f)return;
+    try{
+      const d=JSON.parse(await f.text());
+      if(d.app!=='veya')throw new Error('Это не файл резервной копии Veya');
+      if(!await confirmSheet('Заменить все текущие данные данными из файла?','Восстановить'))return;
+      S.settings=Object.assign(defaultSettings(),d.settings||{});S.characters=d.characters||[];S.personas=d.personas||[];S.chats=d.chats||[];
+      await Promise.all(['settings','characters','personas','chats'].map(save));
+      toast('Данные восстановлены');setTimeout(()=>location.reload(),800);
+    }catch(e){toast('Ошибка: '+e.message,5000);}
+  };
+}
+
+/* =====================================================
+   Запуск
+   ===================================================== */
+(async function start(){
+  fitViewport();
+  try{await load();}catch(e){document.body.innerHTML='<div class="empty">Не удалось открыть хранилище: '+esc(e.message)+'</div>';return;}
+  if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
+  showTab('chats');
+  // обновлять «был(а) N мин назад» в списке
+  setInterval(()=>{const t=nav.stack[0];if(t&&nav.tab==='chats'&&nav.stack.length===1)refreshItem(t);},60000);
+})();
+</script>
+</body>
+</html>
