@@ -277,6 +277,7 @@ input,textarea,select{font:inherit;font-size:16px;color:var(--text)}
 .typingdots i{width:8px;height:8px;border-radius:50%;background:var(--text2);animation:td 1.2s infinite}
 .typingdots i:nth-child(2){animation-delay:.2s}.typingdots i:nth-child(3){animation-delay:.4s}
 /* поле для чисел — видно, что туда можно писать */
+input[type=time].numbox{width:120px;max-width:140px}
 .numbox,.field input.numbox{width:auto;max-width:110px;background:var(--surface2)!important;border:1px solid rgba(215,166,181,.35)!important;border-radius:10px;padding:7px 10px!important;text-align:center;color:var(--text)}
 /* маркдаун */
 .md{white-space:pre-wrap}
@@ -448,7 +449,7 @@ body.showbounds #app::before{content:"↓ низ приложения ↓";posit
    Все данные хранятся только в этом браузере (IndexedDB).
    ===================================================== */
 
-const VERSION = 'этап 4.1';
+const VERSION = 'этап 5';
 
 /* ---------- иконки ---------- */
 const IC = {
@@ -812,6 +813,7 @@ function updateTabbar(){
   $('#tabbar').classList.toggle('hidden',hidden);
   const sh=$('#tabshade');if(sh)sh.classList.toggle('hidden',hidden);
   const u=totalUnread();const cb=$('#tabbar [data-tab="chats"]');
+  if(updateTabbar.lastU!==u){updateTabbar.lastU=u;try{if(navigator.setAppBadge){u?navigator.setAppBadge(u):navigator.clearAppBadge();}DB.db&&DB.set('badge',u);}catch{}}
   if(cb){let b=$('.tbadge',cb);if(!b){b=document.createElement('span');b.className='tbadge';cb.appendChild(b);}b.textContent=u>99?'99+':u;b.style.display=u?'':'none';}
   $$('#tabbar button').forEach(b=>b.classList.toggle('active',b.dataset.tab===nav.tab));
 }
@@ -1356,6 +1358,7 @@ async function generate(chatId,opts={}){
     const hadErr=chat.messages.length&&chat.messages[chat.messages.length-1].role==='error';
     if(!signal.aborted&&last&&last.role==='user'&&last.status!=='read'&&!hadErr)scheduleReply(chatId);
     if(!signal.aborted)maybeSummarize(chatId);
+    if(!signal.aborted)schedulePlan(chatId,12000);
   }
 }
 async function regenerateFrom(chatId,msgId){
@@ -1693,7 +1696,7 @@ async function finishRecording(send){
 }
 function sendUserMessage(chat,msg){
   chat.messages=chat.messages.filter(m=>m.role!=='error');
-  chat.swipe=null;
+  chat.swipe=null;chat.autoStreak=0;cancelAuto(chat);
   chat.messages.push(msg);
   save('chats');chatChanged(chat.id);
   if(!generating.has(chat.id))scheduleReply(chat.id);
@@ -2029,7 +2032,8 @@ function botProfile(el,chatId){
         <button class="row" data-capi><span class="label">Модель</span><span class="value">${esc(apiOptionLabel(chat.apiId))}</span>${IC.chev}</button>
         <button class="row" data-ed="relation"><span class="label">${rp?'Сценарий':'Кто вы друг другу'}</span><span class="value">${esc(chat.relation?plain(chat.relation).slice(0,30):'не указано')}</span>${IC.chev}</button>
         <button class="row" data-ed="style"><span class="label">Стиль письма</span><span class="value">${esc(chat.style?plain(chat.style).slice(0,30):'по характеру')}</span>${IC.chev}</button>
-        ${rp?'':`<button class="row" data-pf><span class="label">Фото от бота</span><span class="value">${PHOTO_FREQ[chat.photoFreq||'sometimes']}</span>${IC.chev}</button>
+        ${rp?'':`<button class="row" data-af><span class="label">Пишет первым</span><span class="value">${AUTO_FREQ[chat.autoFreq||'normal']}${chat.auto&&chat.auto.parts?' · '+fmtPlan(chat.auto.at):''}</span>${IC.chev}</button>
+        <button class="row" data-pf><span class="label">Фото от бота</span><span class="value">${PHOTO_FREQ[chat.photoFreq||'sometimes']}</span>${IC.chev}</button>
         <div class="row"><span class="label">Часовой пояс</span><div class="selectwrap" style="max-width:55%"><select data-tz style="background:transparent;border:0;color:var(--text2);text-align:right;padding-right:16px;max-width:100%">
           <option value="">Как на телефоне</option>${TZ_LIST.map(z=>`<option ${chat.tz===z?'selected':''}>${z}</option>`).join('')}</select></div></div>
         <button class="row" data-real><span class="label">Живое поведение</span><span class="toggle ${chat.realism!==false?'on':''}"></span></button>
@@ -2063,6 +2067,7 @@ function botProfile(el,chatId){
     $('.tapc',el).onclick=()=>viewer(photos.map(p=>p.src),idx);
     const ex=$('[data-exp]',el);if(ex)ex.onclick=()=>{expanded=!expanded;draw();};
     $('[data-capi]',el).onclick=async()=>{const r=await pickApiSheet(chat.apiId);if(r){chat.apiId=r.id;save('chats');draw();}};
+    const af=$('[data-af]',el);if(af)af.onclick=()=>sheet({title:'Как часто '+ch.name+' пишет первым'+(chat.auto&&chat.auto.parts?'\nСледующее сообщение запланировано: '+fmtPlan(chat.auto.at):chat.auto&&chat.auto.none?'\nСейчас писать первым не собирается':''),actions:Object.entries(AUTO_FREQ).map(([k,l])=>({label:((chat.autoFreq||'normal')===k?'✓ ':'')+l,onClick:()=>{chat.autoFreq=k;if(k==='off')cancelAuto(chat);else{chat.auto=null;schedulePlan(chat.id,3000);}save('chats');draw();}}))});
     const pf=$('[data-pf]',el);if(pf)pf.onclick=()=>sheet({title:'Как часто бот присылает свои фото',actions:Object.entries(PHOTO_FREQ).map(([k,l])=>({label:((chat.photoFreq||'sometimes')===k?'✓ ':'')+l,onClick:()=>{chat.photoFreq=k;save('chats');draw();}}))});
     const titles={relation:rp?'Сценарий / предыстория':'Кто вы друг другу',style:'Как пишет '+ch.name,ltm:'Долгая память'};
     $$('[data-ed]',el).forEach(b=>b.onclick=async()=>{
@@ -2255,6 +2260,8 @@ ROOTS.settings=function(el){
       <button class="row" data-go="memory"><span class="label">Память и ответы</span><span class="value">${(st.contextTokens||0).toLocaleString('ru-RU')} ток.</span>${IC.chev}</button>
       <button class="row" data-go="greeting"><span class="label">Приветствие по умолчанию</span><span class="value">${st.greeting.enabled?'вкл':'выкл'}</span>${IC.chev}</button>
     </div>
+    <div class="group-title">Живость</div>
+    <div class="group"><button class="row" data-go="auto"><span class="label">Бот пишет первым и уведомления</span><span class="value">${(S.settings.push&&S.settings.push.sub)?'🔔':''}${S.settings.autoOn===false?'выкл':'вкл'}</span>${IC.chev}</button></div>
     <div class="group-title">Медиа, лор и память</div>
     <div class="group">
       <button class="row" data-go="media"><span class="label">Фото, голосовые, видео</span>${IC.chev}</button>
@@ -2272,7 +2279,7 @@ ROOTS.settings=function(el){
     <div class="group-foot" style="text-align:center;margin-top:18px">Veya AI · ${VERSION}<br>Все данные хранятся только на этом устройстве.</div>
   </div>`;
   $$('[data-mode]',el).forEach(b=>b.onclick=()=>{st.mode=b.dataset.mode;save('settings');ROOTS.settings(el);});
-  const go={lore:loreList,screen:screenSettings,media:mediaSettings,imagegen:imageGenScreen,ltm:ltmSettings,apis:apiList,promptChat:el=>promptEditor(el,'chat'),promptRp:el=>promptEditor(el,'rp'),memory:memoryEditor,greeting:greetingEditor,backup:backupScreen};
+  const go={auto:autoSettings,lore:loreList,screen:screenSettings,media:mediaSettings,imagegen:imageGenScreen,ltm:ltmSettings,apis:apiList,promptChat:el=>promptEditor(el,'chat'),promptRp:el=>promptEditor(el,'rp'),memory:memoryEditor,greeting:greetingEditor,backup:backupScreen};
   $$('[data-go]',el).forEach(b=>b.onclick=()=>push(go[b.dataset.go]));
   $('[data-wipe]',el).onclick=async()=>{
     if(!await confirmSheet('Удалить всех персонажей, персон, чаты и настройки? Это нельзя отменить. Сначала лучше сделать резервную копию.','Удалить всё'))return;
@@ -2839,6 +2846,185 @@ function loreRowsHTML(ids,{detach=true,tag=''}={}){
 }
 
 /* =====================================================
+   АВТОНОМНОСТЬ: бот сам пишет первым
+   После паузы в переписке модель решает: напишет ли персонаж первым, когда и что.
+   В нужное время сообщения появляются в чате, а «будильник» присылает уведомление.
+   ===================================================== */
+const AUTO_FREQ={off:'никогда',rare:'редко',normal:'как живой человек',often:'часто'};
+const AUTO_FREQ_TEXT={rare:'пишет первым редко — только если есть по-настоящему веская причина',normal:'пишет первым так, как это делал бы живой человек с таким характером',often:'любит писать первым — охотно напоминает о себе, когда есть хоть какой-то повод'};
+const planTimers={};const planning=new Set();
+function autoCfg(){const s=S.settings;if(s.autoOn===undefined)s.autoOn=true;if(!s.quiet)s.quiet={enabled:false,from:'23:00',to:'08:00'};return s;}
+function autoEnabled(chat){return autoCfg().autoOn!==false&&chatMode(chat)==='chat'&&(chat.autoFreq||'normal')!=='off';}
+function lastReal(chat){return chat.messages.filter(m=>m.role==='user'||m.role==='bot').pop();}
+function lastUserTs(chat){const m=chat.messages.filter(m=>m.role==='user').pop();return m?m.ts:(chat.createdAt||0);}
+function toMin(hhmm){const [h,m]=(hhmm||'0:0').split(':').map(Number);return (h||0)*60+(m||0);}
+function inQuiet(ts){const q=autoCfg().quiet;if(!q.enabled)return false;const d=new Date(ts);const t=d.getHours()*60+d.getMinutes();const f=toMin(q.from),to=toMin(q.to);return f<to?(t>=f&&t<to):(t>=f||t<to);}
+function shiftQuiet(ts){
+  if(!inQuiet(ts))return ts;const q=autoCfg().quiet;const d=new Date(ts);const to=toMin(q.to);
+  const end=new Date(d);end.setHours(Math.floor(to/60),to%60,0,0);if(end<=d)end.setDate(end.getDate()+1);
+  return end.getTime()+Math.round(rnd(2,40)*6e4);
+}
+function cancelAuto(chat){clearTimeout(planTimers[chat.id]);if(chat.auto){chat.auto=null;cancelPush(chat);save('chats');}}
+function schedulePlan(chatId,delay=45000){
+  clearTimeout(planTimers[chatId]);
+  planTimers[chatId]=setTimeout(()=>{
+    const ta=composers[chatId];
+    if(ta&&ta.isConnected&&ta.value.trim()){schedulePlan(chatId,30000);return;} // юзер ещё пишет
+    planAuto(chatId);
+  },delay);
+}
+async function planAuto(chatId){
+  const chat=chatById(chatId);if(!chat||!autoEnabled(chat)||planning.has(chatId)||generating.has(chatId)||replyTimers[chatId])return;
+  const last=lastReal(chat);if(!last)return;
+  if(Date.now()-lastUserTs(chat)>3*864e5)return;       // 3 дня без переписки — больше не пишет первым
+  if((chat.autoStreak||0)>=3)return;                    // уже трижды писал(а) без ответа
+  if(chat.auto&&chat.auto.basedOn===last.id)return;     // уже решено
+  if(last.role==='user'&&last.status!=='read')return;   // ждём обычного ответа
+  const api=chatApi(chat);if(!api||!api.key||!api.model)return;
+  planning.add(chatId);
+  try{
+    const saveState=JSON.stringify(chat.loreState||{});
+    const {system,turns,charName,userName}=buildPrompt(chat,{});
+    chat.loreState=JSON.parse(saveState); // планирование не тратит кулдауны лорбука
+    const tz=chatTz(chat);const now=new Date().toLocaleString('ru-RU',{weekday:'long',day:'numeric',month:'long',hour:'2-digit',minute:'2-digit',timeZone:tz});
+    const q=autoCfg().quiet;const f=chat.autoFreq||'normal';
+    const streak=chat.autoStreak||0;
+    turns.push({role:'user',text:`(Служебно, ${userName} этого не видит. ${userName} сейчас не отвечает и не в переписке. Сейчас ${now}.${streak?` ${charName} уже написал(а) первым ${streak} раз(а) без ответа.`:''}
+Реши, напишет ли ${charName} первым и когда. ${charName} ${AUTO_FREQ_TEXT[f]}. Учитывай характер, отношения и то, чем закончился разговор: попрощались на ночь — можно написать утром; остался вопрос без ответа — напомнить через разумное время; после тревожного или тёплого разговора можно написать и ночью, «я всё думал(а) об этом»; разговор естественно закончился и повода нет — лучше не писать.${q.enabled?` Не пиши с ${q.from} до ${q.to}.`:''}
+Ответь строго в формате. Первая строка: ЧЕРЕЗ: <сколько минут, от 10 до 2880> — или НЕ ПИШЕТ. Ниже — сообщения, которые ${charName} отправит в тот момент: как обычно в переписке, каждое с новой строки, с учётом того, сколько времени пройдёт.)`,media:[]});
+    const raw=await callModel(api,system,turns);
+    const lines=raw.replace(/\r/g,'').trim().split('\n');
+    const head=lines.shift()||'';
+    const cur=lastReal(chat);if(!cur||cur.id!==last.id)return; // пока думали, переписка продолжилась
+    if(/НЕ\s*ПИШЕТ/i.test(head)){chat.auto={basedOn:last.id,none:true};save('chats');chatChanged(chatId);return;}
+    let mins=+((head.match(/(\d+)/)||[])[1]);if(!mins)return;
+    mins=Math.max(10,Math.min(2880,mins));
+    const parts=parseReply(lines.join('\n'),charName,'chat');
+    const msgs=Array.isArray(parts)?parts.filter(p=>p.text).map(p=>({text:p.text})):[];
+    if(!msgs.length)return;
+    const at=shiftQuiet(Date.now()+mins*6e4);
+    chat.auto={basedOn:last.id,at,parts:msgs,id:uid()};
+    save('chats');chatChanged(chatId);
+    schedulePush(chat,charName);
+  }catch(e){/* не получилось — попробуем в другой раз */}
+  finally{planning.delete(chatId);}
+}
+// пришло время — сообщения появляются в чате
+function materializeAuto(){
+  let changed=false;
+  for(const chat of S.chats){
+    const a=chat.auto;if(!a||!a.parts||a.at>Date.now())continue;
+    const last=lastReal(chat);
+    if(!last||last.id!==a.basedOn){chat.auto=null;changed=true;continue;}
+    a.parts.forEach((p,i)=>chat.messages.push({id:uid(),role:'bot',text:p.text,ts:a.at+i*25000,auto:true}));
+    chat.botLastSeen=a.at+a.parts.length*25000;
+    chat.autoStreak=(chat.autoStreak||0)+1;chat.auto=null;changed=true;
+    const open=nav.stack.some(it=>it.el.chatId===chat.id&&it.el.classList.contains('chat'));
+    if(!open&&!document.hidden){const ch=charById(chat.characterId);toast((ch?ch.name+': ':'')+a.parts[0].text.slice(0,80),4000);}
+    chatChanged(chat.id);
+    schedulePlan(chat.id,20000);
+  }
+  if(changed)save('chats');
+}
+// после возвращения в приложение — продолжить планирование там, где нужно
+function resumeAuto(){
+  materializeAuto();
+  for(const chat of S.chats){const last=lastReal(chat);if(autoEnabled(chat)&&last&&!(chat.auto&&chat.auto.basedOn===last.id))schedulePlan(chat.id,8000+Math.random()*8000);}
+}
+
+/* ---------- уведомления через «будильник» ---------- */
+function pushCfg(){return S.settings.push||(S.settings.push={url:'',sub:null,deviceId:uid()});}
+async function pushFetch(path,body){
+  const c=pushCfg();if(!c.url)throw new Error('Не указан адрес будильника');
+  let res;
+  try{res=await fetch(c.url.trim().replace(/\/+$/,'')+path,body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{});}
+  catch(e){throw new Error('Будильник не отвечает. Проверьте адрес.');}
+  const d=await res.json().catch(()=>({}));
+  if(!res.ok||d.error)throw new Error(d.error||('Ошибка '+res.status));
+  return d;
+}
+async function schedulePush(chat,name){
+  const c=pushCfg();if(!chat.auto||!chat.auto.at)return;
+  const id=c.deviceId+':'+chat.id;
+  const q=(await DB.get('pushq'))||[];
+  await DB.set('pushq',[...q.filter(x=>x.id!==id),{id,chatId:chat.id,title:name,body:chat.auto.parts.map(p=>p.text).join('\n').slice(0,200),at:chat.auto.at}]);
+  if(!c.url||!c.sub||chat.muted)return;
+  try{await pushFetch('/schedule',{id,at:chat.auto.at,sub:c.sub});}catch{}
+}
+async function cancelPush(chat){
+  const c=pushCfg();const id=c.deviceId+':'+chat.id;
+  const q=(await DB.get('pushq'))||[];DB.set('pushq',q.filter(x=>x.id!==id));
+  if(c.url&&c.sub)pushFetch('/cancel',{id}).catch(()=>{});
+}
+function b64uToBytes(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';const b=atob(s);return Uint8Array.from(b,c=>c.charCodeAt(0));}
+async function enablePush(){
+  const c=pushCfg();
+  if(!('serviceWorker' in navigator)||!('PushManager' in window)||!window.Notification)
+    throw new Error('Уведомления работают только в приложении, открытом с экрана Домой (iOS 16.4 и новее).');
+  const {publicKey}=await pushFetch('/key');
+  const perm=await Notification.requestPermission();
+  if(perm!=='granted')throw new Error('Уведомления не разрешены. Включите их: Настройки iPhone → Уведомления → Veya.');
+  const reg=await navigator.serviceWorker.ready;
+  let sub=await reg.pushManager.getSubscription();
+  if(sub&&c.vapidKey&&c.vapidKey!==publicKey){await sub.unsubscribe();sub=null;}
+  if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64uToBytes(publicKey)});
+  c.sub=sub.toJSON();c.vapidKey=publicKey;await save('settings');
+  const id=c.deviceId+':test';
+  const q=(await DB.get('pushq'))||[];
+  await DB.set('pushq',[...q.filter(x=>x.id!==id),{id,chatId:null,title:'Veya AI',body:'Уведомления работают ✨',at:Date.now()}]);
+  const r=await pushFetch('/test',{id,sub:c.sub});
+  if(!r.ok)throw new Error('Сервис уведомлений ответил кодом '+r.status);
+  // перепланировать уже назначенные сообщения на новый адрес
+  for(const chat of S.chats)if(chat.auto&&chat.auto.at>Date.now()){const ch=charById(chat.characterId);schedulePush(chat,ch?ch.name:'Veya');}
+}
+
+/* ---------- экран настроек «Бот пишет первым» ---------- */
+function autoSettings(el){
+  const st=autoCfg();const c=pushCfg();let busy=false;
+  const draw=()=>{
+    {const _sc=$('.scroll',el),_t=_sc?_sc.scrollTop:0;if(_t)queueMicrotask(()=>{const s2=$('.scroll',el);if(s2)s2.scrollTop=_t;});}
+    const planned=S.chats.filter(ch=>ch.auto&&ch.auto.parts).map(ch=>({name:(charById(ch.characterId)||{name:'?'}).name,at:ch.auto.at}));
+    el.innerHTML=topbar('Бот пишет первым')+`<div class="scroll">
+      <div class="group" style="margin-top:16px"><button class="row" data-on><span class="label">Боты могут писать первыми</span><span class="toggle ${st.autoOn!==false?'on':''}"></span></button></div>
+      <div class="group-foot">После паузы в переписке модель решает, напишет ли персонаж первым, когда и что — из контекста, без заготовок. Например, «доброе утро» после тёплого вечера или напомнит о вопросе, если вы пропали. Если 3 дня нет переписки или бот уже 3 раза написал без ответа — он перестаёт писать первым. Как часто — настраивается в каждом чате.</div>
+      <div class="group-title">Тихие часы</div>
+      <div class="group">
+        <button class="row" data-q><span class="label">Не писать ночью</span><span class="toggle ${st.quiet.enabled?'on':''}"></span></button>
+        ${st.quiet.enabled?`<div class="row"><span class="label">С</span><input type="time" data-qf value="${st.quiet.from}" class="numbox"></div><div class="row"><span class="label">До</span><input type="time" data-qt value="${st.quiet.to}" class="numbox"></div>`:''}
+      </div>
+      <div class="group-title">Уведомления на заблокированный экран</div>
+      <div class="group">
+        <div class="field"><label>Адрес будильника (Cloudflare Worker)</label><input data-url value="${esc(c.url)}" placeholder="https://veya-push.ваш-ник.workers.dev" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="url"></div>
+        <div class="row"><span class="label">Состояние</span><span class="value">${c.sub?'✅ включены':'выключены'}</span></div>
+      </div>
+      <button class="btn" data-enable ${busy?'disabled':''}>${busy?'<span class="spin"></span> Подключаю…':c.sub?'Переподключить и прислать тестовое':'Включить уведомления'}</button>
+      <div class="group-foot">Без будильника бот всё равно пишет первым, но его сообщения появятся, только когда вы откроете приложение. Будильник хранит лишь время и адрес вашего телефона для доставки — тексты остаются на телефоне.</div>
+      ${planned.length?`<div class="group-title">Запланировано</div><div class="group">${planned.map(p=>`<div class="row"><span class="label">${esc(p.name)}</span><span class="value">${fmtPlan(p.at)}</span></div>`).join('')}</div>`:''}
+    </div>`;
+    bindBack(el);
+    $('[data-on]',el).onclick=()=>{st.autoOn=st.autoOn===false;save('settings');if(st.autoOn===false)S.chats.forEach(cancelAuto);draw();};
+    $('[data-q]',el).onclick=()=>{st.quiet.enabled=!st.quiet.enabled;save('settings');draw();};
+    const qf=$('[data-qf]',el);if(qf)qf.onchange=()=>{st.quiet.from=qf.value||'23:00';save('settings');};
+    const qt=$('[data-qt]',el);if(qt)qt.onchange=()=>{st.quiet.to=qt.value||'08:00';save('settings');};
+    $('[data-url]',el).onchange=e=>{c.url=e.target.value.trim();save('settings');};
+    $('[data-enable]',el).onclick=async()=>{
+      c.url=$('[data-url]',el).value.trim();save('settings');
+      if(!c.url){toast('Сначала вставьте адрес будильника');return;}
+      busy=true;draw();
+      try{await enablePush();toast('Готово! Тестовое уведомление придёт через пару секунд — заблокируйте экран и проверьте.',6000);}
+      catch(e){toast('❌ '+e.message,7000);}
+      busy=false;draw();
+    };
+  };
+  el.refresh=draw;draw();
+}
+function fmtPlan(at){
+  if(!at)return '';const d=new Date(at);const today=dayKey(Date.now())===dayKey(at);
+  const tm=new Date();tm.setDate(tm.getDate()+1);
+  return (today?'сегодня':dayKey(tm)===dayKey(at)?'завтра':d.toLocaleDateString('ru-RU',{day:'numeric',month:'short'}))+' в '+fmtTime(at);
+}
+
+/* =====================================================
    Запуск
    ===================================================== */
 (async function start(){
@@ -2849,6 +3035,17 @@ function loreRowsHTML(ids,{detach=true,tag=''}={}){
   fitViewport();
   if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
   showTab('chats');
+  if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+  if(navigator.serviceWorker)navigator.serviceWorker.addEventListener('message',e=>{if(e.data&&e.data.openChat&&chatById(e.data.openChat)){if(nav.tab!=='chats')showTab('chats');else popToRoot();openChat(e.data.openChat);}});
+  const qc=new URLSearchParams(location.search).get('chat');
+  if(qc&&chatById(qc)){openChat(qc);history.replaceState(null,'',location.pathname);}
+  resumeAuto();
+  setInterval(materializeAuto,20000);
+  document.addEventListener('visibilitychange',()=>{
+    if(!document.hidden){resumeAuto();return;}
+    // приложение сворачивают — успеть решить, напишет ли бот первым
+    Object.keys(planTimers).forEach(id=>{clearTimeout(planTimers[id]);planAuto(id);});
+  });
   // обновлять «был(а) N мин назад» в списке
   setInterval(()=>{const t=nav.stack[0];if(t&&nav.tab==='chats'&&nav.stack.length===1)refreshItem(t);},60000);
 })();
