@@ -406,7 +406,7 @@ input,textarea,select{font:inherit;font-size:16px;color:var(--text)}
    Все данные хранятся только в этом браузере (IndexedDB).
    ===================================================== */
 
-const VERSION = 'этап 3';
+const VERSION = 'этап 3.1';
 
 /* ---------- иконки ---------- */
 const IC = {
@@ -783,11 +783,22 @@ function bindBack(el){$$('[data-back]',el).forEach(b=>b.onclick=pop);}
 // Поэтому без клавиатуры берём полную высоту экрана, а с клавиатурой — видимую область.
 function isEditing(){const a=document.activeElement;return !!a&&(a.tagName==='TEXTAREA'||(a.tagName==='INPUT'&&!['checkbox','radio','button','file','range'].includes(a.type)));}
 const maxH={p:0,l:0};
+const isStandalone=window.navigator.standalone===true||matchMedia('(display-mode: standalone)').matches;
+function safeTop(){const d=document.createElement('div');d.style.cssText='position:absolute;top:0;left:0;height:env(safe-area-inset-top);width:1px;visibility:hidden';document.body.appendChild(d);const h=d.offsetHeight;d.remove();return h;}
+function screenH(){const portrait=window.matchMedia('(orientation: portrait)').matches;return portrait?Math.max(screen.height,screen.width):Math.min(screen.height,screen.width);}
 function fullHeight(){
   const k=window.matchMedia('(orientation: portrait)').matches?'p':'l';
   const vv=window.visualViewport;const cur=Math.max(window.innerHeight,vv?vv.height:0);
   if(!isEditing())maxH[k]=Math.max(maxH[k],cur);
-  return maxH[k]||cur;
+  let h=maxH[k]||cur;
+  // в приложении с экрана Домой iOS рисует под строкой состояния, но не считает её в высоту — отсюда пустая полоса снизу
+  if(isStandalone){const st=safeTop();if(h+st<=screenH()+2)h+=st;}
+  const adj=(S.settings&&S.settings.screenAdjust)||0;
+  return h+adj;
+}
+function viewportInfo(){
+  const vv=window.visualViewport;
+  return `экран ${screen.width}×${screen.height}, окно ${window.innerWidth}×${window.innerHeight}, видимая ${vv?Math.round(vv.width)+'×'+Math.round(vv.height):'—'}, сверху ${safeTop()}, с экрана Домой: ${isStandalone?'да':'нет'}, итог ${Math.round(fullHeight())}`;
 }
 function fitViewport(){
   const vv=window.visualViewport;
@@ -880,7 +891,7 @@ async function callModel(api,system,turnsIn,{signal}={}){
     const url=joinUrl(api.baseUrl,'models/'+encodeURIComponent(model)+':generateContent')+'?key='+encodeURIComponent(api.key.trim());
     const body={
       systemInstruction:{parts:[{text:system}]},
-      contents:turns.map(t=>({role:t.role==='assistant'?'model':'user',parts:[...t.media.map(m=>({inline_data:{mime_type:m.mime,data:m.data}})),...(t.text?[{text:t.text}]:[])]})),
+      contents:turns.map(t=>({role:t.role==='assistant'?'model':'user',parts:[...t.media.map(m=>({inlineData:{mimeType:m.mime,data:m.data}})),...(t.text?[{text:t.text}]:[])]})),
       safetySettings:SAFETY,generationConfig:{temperature:1}
     };
     const data=await httpJson(url,{method:'POST',headers,body:JSON.stringify(body),signal});
@@ -915,7 +926,7 @@ async function callImage(api,prompt,refs=[],{signal}={}){
   const headers=Object.assign({'Content-Type':'application/json'},apiHeaders(api,proto));
   if(proto==='gemini'){
     const url=joinUrl(api.baseUrl,'models/'+encodeURIComponent(model)+':generateContent')+'?key='+encodeURIComponent(api.key.trim());
-    const body={contents:[{role:'user',parts:[...refs.map(m=>({inline_data:{mime_type:m.mime,data:m.data}})),{text:prompt}]}],
+    const body={contents:[{role:'user',parts:[...refs.map(m=>({inlineData:{mimeType:m.mime,data:m.data}})),{text:prompt}]}],
       safetySettings:SAFETY,generationConfig:{responseModalities:['TEXT','IMAGE']}};
     const data=await httpJson(url,{method:'POST',headers,body:JSON.stringify(body),signal});
     const parts=data.candidates?.[0]?.content?.parts||[];
@@ -1056,7 +1067,7 @@ async function prepareMedia(chat,mainApi,signal,onStep){
 }
 // Ответ модели → список сообщений [{text, quote, photo, together}] или {ignore:true}
 function parseReply(raw,charName,mode){
-  let t=(raw||'').replace(/\r/g,'').trim();
+  let t=(raw||'').replace(/\r/g,'').replace(/\[cite(?:_start|_end)?(?::\s*[\d,\s]*)?\]/gi,'').replace(/[ \t]+([.,!?…])/g,'$1').replace(/[ \t]{2,}/g,' ').trim();
   const namePrefix=new RegExp('^\\s*'+charName.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\s*:\\s*','i');
   if(mode==='rp'){
     t=t.replace(/^\((прошло|продолжи|это начало)[^)]*\)\s*/i,'').replace(namePrefix,'');
@@ -2062,6 +2073,8 @@ ROOTS.settings=function(el){
       <button class="row" data-go="imagegen"><span class="label">Генерация картинок</span>${IC.chev}</button>
       <button class="row" data-go="ltm"><span class="label">Долгая память</span><span class="value">${st.ltm.prompt===DEFAULT_LTM_PROMPT?'стандартная':'свой промпт'}</span>${IC.chev}</button>
     </div>
+    <div class="group-title">Экран</div>
+    <div class="group"><button class="row" data-go="screen"><span class="label">Подогнать высоту экрана</span><span class="value">${st.screenAdjust?(st.screenAdjust>0?'+':'')+st.screenAdjust:'авто'}</span>${IC.chev}</button></div>
     <div class="group-title">Данные</div>
     <div class="group">
       <button class="row" data-go="backup"><span class="label">Резервная копия</span>${IC.chev}</button>
@@ -2070,7 +2083,7 @@ ROOTS.settings=function(el){
     <div class="group-foot" style="text-align:center;margin-top:18px">Veya AI · ${VERSION}<br>Все данные хранятся только на этом устройстве.</div>
   </div>`;
   $$('[data-mode]',el).forEach(b=>b.onclick=()=>{st.mode=b.dataset.mode;save('settings');ROOTS.settings(el);});
-  const go={media:mediaSettings,imagegen:imageGenScreen,ltm:ltmSettings,apis:apiList,promptChat:el=>promptEditor(el,'chat'),promptRp:el=>promptEditor(el,'rp'),memory:memoryEditor,greeting:greetingEditor,backup:backupScreen};
+  const go={screen:screenSettings,media:mediaSettings,imagegen:imageGenScreen,ltm:ltmSettings,apis:apiList,promptChat:el=>promptEditor(el,'chat'),promptRp:el=>promptEditor(el,'rp'),memory:memoryEditor,greeting:greetingEditor,backup:backupScreen};
   $$('[data-go]',el).forEach(b=>b.onclick=()=>push(go[b.dataset.go]));
   $('[data-wipe]',el).onclick=async()=>{
     if(!await confirmSheet('Удалить всех персонажей, персон, чаты и настройки? Это нельзя отменить. Сначала лучше сделать резервную копию.','Удалить всё'))return;
@@ -2265,6 +2278,25 @@ function pickSlotSheet(title,current,emptyLabel='Основная модель �
     sheet({title,actions:opts.map(o=>({label:((o.id||null)===(current||null)?'✓ ':'')+slotLabel(o.id,emptyLabel),onClick:()=>res({id:o.id})}))}).then(i=>{if(i===null||i<0)res(null);});
   });
 }
+function screenSettings(el){
+  const st=S.settings;
+  const draw=()=>{
+    const v=st.screenAdjust||0;
+    el.innerHTML=topbar('Высота экрана')+`<div class="scroll">
+      <div class="group-foot" style="margin-top:16px">Если внизу остаётся пустая чёрная полоса — двигайте ползунок вправо, пока поле ввода не встанет к самому низу. Если низ обрезается — влево. Меняется сразу.</div>
+      <div class="group"><div class="field"><label>Поправка: ${v>0?'+':''}${v} пикс.</label>
+        <input data-adj type="range" min="-200" max="200" step="2" value="${v}" style="width:100%;accent-color:var(--accent)">
+        <div class="chips"><button class="chip" data-st="-10">−10</button><button class="chip" data-st="-2">−2</button><button class="chip" data-st="2">+2</button><button class="chip" data-st="10">+10</button><button class="chip ${v===0?'on':''}" data-st="0">авто</button></div></div></div>
+      <div class="group-foot" style="font-size:11.5px;color:var(--text3)">Для отладки: ${esc(viewportInfo())}</div>
+    </div>`;
+    bindBack(el);
+    const r=$('[data-adj]',el);
+    r.oninput=()=>{st.screenAdjust=+r.value;fitViewport();$('label',el).textContent='Поправка: '+(st.screenAdjust>0?'+':'')+st.screenAdjust+' пикс.';};
+    r.onchange=()=>{save('settings');draw();};
+    $$('[data-st]',el).forEach(b=>b.onclick=()=>{const d=+b.dataset.st;st.screenAdjust=d===0?0:Math.max(-200,Math.min(200,(st.screenAdjust||0)+d));save('settings');fitViewport();draw();});
+  };
+  draw();
+}
 function mediaSettings(el){
   const st=S.settings;
   const draw=()=>{
@@ -2371,6 +2403,7 @@ function imageGenScreen(el){
   app.appendChild($('#tabbar'));app.appendChild($('#toast'));
   fitViewport();
   try{await load();}catch(e){document.body.innerHTML='<div class="empty">Не удалось открыть хранилище: '+esc(e.message)+'</div>';return;}
+  fitViewport();
   if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
   showTab('chats');
   // обновлять «был(а) N мин назад» в списке
