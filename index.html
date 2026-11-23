@@ -234,10 +234,11 @@ input,textarea,select{font:inherit;font-size:16px;color:var(--text)}
 .sheet .sbtn + .sbtn{border-top:.5px solid var(--sep)}
 .sheet .sbtn.danger{color:var(--danger)}
 .sheet .cancel{margin-top:8px;font-weight:600}
-.modal{position:fixed;left:12px;right:12px;top:calc(var(--sat) + 40px);z-index:101;background:var(--surface);border-radius:16px;padding:14px;transform:translateY(-20px);opacity:0;transition:all .25s}
+.modal{position:fixed;left:8px;right:8px;top:calc(var(--sat) + 10px);bottom:calc(var(--sab) + 10px);z-index:101;background:var(--surface);border-radius:18px;padding:14px;transform:translateY(-20px);opacity:0;transition:all .25s;display:flex;flex-direction:column}
+.kb .modal{bottom:10px}
 .modal.show{transform:none;opacity:1}
 .modal h3{margin:2px 0 10px;font-size:17px;text-align:center}
-.modal textarea{width:100%;min-height:140px;max-height:45vh;background:var(--surface2);border:0;border-radius:10px;padding:10px;outline:0;resize:none;line-height:1.4}
+.modal textarea{width:100%;flex:1;min-height:120px;background:var(--surface2);border:0;border-radius:12px;padding:12px;outline:0;resize:none;line-height:1.45;font-size:16.5px}
 .modal .mbtns{display:flex;gap:8px;margin-top:10px}
 .modal .mbtns button{flex:1;padding:12px;border-radius:12px;background:var(--surface2);color:var(--accent);font-weight:600}
 .modal .mbtns button.pri{background:var(--accent);color:#231a1d}
@@ -302,6 +303,77 @@ input,textarea,select{font:inherit;font-size:16px;color:var(--text)}
 .swipes button{width:30px;height:28px;font-size:20px;color:var(--accent);border-radius:12px}
 .swipes button:disabled{opacity:.3}
 .rpcard .swipes{margin:10px 0 0;background:rgba(0,0,0,.25)}
+/* ---------- медиа в чате ---------- */
+.bubble.media{padding:6px 6px 6px 6px}
+.bubble.media.visual{padding:3px;overflow:hidden}
+.bubble.media.visual .q{margin:3px 3px 5px}
+.bubble.media .cap{padding:4px 7px 2px}
+.bubble.media.nocap .meta{background:rgba(0,0,0,.45);color:#fff!important;padding:2px 7px;border-radius:10px;right:9px;bottom:8px}
+.bubble.media.nocap .meta svg{color:#fff}
+.mimg{display:block;max-width:250px;max-height:340px;min-width:120px;min-height:80px;border-radius:15px;object-fit:cover;background:#222}
+.mvid{display:block;width:250px;max-height:340px;border-radius:15px;background:#000;object-fit:cover}
+.bubble.media.visual{position:relative}
+.vbadge{position:absolute;left:10px;top:10px;padding:2px 8px;border-radius:10px;background:rgba(0,0,0,.55);color:#fff;font-size:12.5px}
+.mph{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;width:230px;height:170px;border-radius:15px;background:rgba(255,255,255,.05);color:var(--text2);font-size:14px;text-align:center;padding:10px}
+.mph.failed small{font-size:12px;opacity:.8}
+.mph.failed button{padding:7px 14px;border-radius:12px;background:var(--accent);color:#231a1d;font-weight:600}
+.voice{display:flex;align-items:center;gap:9px;min-width:210px;padding:2px 50px 2px 0}
+.rpcard .voice,.group .voice{padding-right:0}
+.vplay{width:40px;height:40px;border-radius:50%;flex:none;background:var(--accent);color:#231a1d;font-size:14px;font-weight:700}
+.mrow.user .vplay{background:#5a3a46;color:#f4dce4}
+.wave{flex:1;display:flex;align-items:center;gap:2px;height:28px}
+.wave i{flex:1;min-width:2px;border-radius:2px;background:currentColor;opacity:.35}
+.wave i.on{opacity:1}
+.vdur{font-size:12.5px;opacity:.7;flex:none}
+.fileb{display:flex;align-items:center;gap:10px;min-width:200px;padding:2px 54px 2px 0}
+.ficon{width:44px;height:44px;border-radius:12px;flex:none;display:flex;align-items:center;justify-content:center;background:var(--accent);color:#231a1d;font-size:11px;font-weight:700}
+.ficon.sm{width:36px;height:36px;font-size:10px}
+.ficon.round{border-radius:50%;background:var(--surface2);font-size:18px}
+.mrow.user .ficon{background:#5a3a46;color:#f4dce4}
+.finfo{display:flex;flex-direction:column;min-width:0}
+.finfo b{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px}
+.finfo small{font-size:12.5px;opacity:.7}
+.circle{position:relative;width:220px;height:220px;border-radius:50%;overflow:visible;flex:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.circle video{width:100%;height:100%;border-radius:50%;object-fit:cover;background:#111;display:block;transition:transform .2s}
+.circle.playing video{transform:scale(1.08)}
+.circle .cdur{position:absolute;left:10px;bottom:6px;padding:2px 8px;border-radius:10px;background:rgba(0,0,0,.55);color:#fff;font-size:12px}
+.circle .meta{right:6px;bottom:6px;background:rgba(0,0,0,.55);color:#fff!important;padding:2px 7px;border-radius:10px}
+.circle .meta svg{color:#fff}
+.circle.inrp{width:180px;height:180px;margin:4px 0 8px}
+.rpmedia{margin:2px 0 8px}
+.rpmedia .mimg,.rpmedia .mvid{max-width:100%}
+/* кнопка «остановить» */
+.stoppill{position:relative;z-index:11;height:0;display:flex;justify-content:center;overflow:visible;pointer-events:none}
+.stoppill button{position:absolute;bottom:6px;padding:8px 16px;border-radius:18px;font-size:14px;font-weight:600;color:var(--text);opacity:0;transform:translateY(10px);transition:all .2s}
+.stoppill.show button{opacity:1;transform:none;pointer-events:auto}
+/* запись голосового */
+.recbar{position:relative;z-index:10;display:flex;align-items:center;gap:8px;padding:6px 10px calc(var(--sab) + 6px)}
+.kb .recbar{padding-bottom:8px}
+.recbar .rb-in{flex:1;height:44px;border-radius:22px;display:flex;align-items:center;gap:12px;padding:0 16px}
+.recbar .rt{font-variant-numeric:tabular-nums;flex:1}
+.recbar [data-rcancel]{color:var(--accent);font-size:16px}
+.dot{width:10px;height:10px;border-radius:50%;background:#ff4d6a;animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.3}}
+.recbar .cbtn{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.recbar .cbtn svg{width:23px;height:23px}
+.recbar .send{background:var(--accent);color:#231a1d}
+/* запись кружочка */
+.circrec{position:absolute;inset:0;z-index:160;background:rgba(10,8,12,.78);backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);opacity:0;transition:opacity .25s}
+.circrec.show{opacity:1}
+.cr-circle{position:absolute;left:50%;top:42%;width:min(86vw,380px);height:min(86vw,380px);transform:translate(-50%,-50%);border-radius:50%;overflow:hidden;background:#000;box-shadow:0 0 0 3px rgba(215,166,181,.5)}
+.cr-circle video{width:100%;height:100%;object-fit:cover}
+.cr-tools{position:absolute;left:20px;bottom:calc(var(--sab) + 92px)}
+.cr-tools button{width:52px;height:52px;border-radius:50%;font-size:22px;color:#fff}
+.cr-bottom{position:absolute;left:16px;right:110px;bottom:calc(var(--sab) + 20px);height:52px;border-radius:26px;display:flex;align-items:center;gap:12px;padding:0 18px;color:#fff}
+.cr-bottom .rt{font-variant-numeric:tabular-nums;flex:1}
+.cr-bottom [data-cancel]{color:var(--accent);font-size:17px}
+.cr-send{position:absolute;right:16px;bottom:calc(var(--sab) + 10px);width:76px;height:76px;border-radius:50%;background:var(--accent);color:#231a1d;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 8px rgba(215,166,181,.25)}
+.cr-send svg{width:32px;height:32px}
+/* медиа в профиле */
+.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin:10px 16px 30px;border-radius:14px;overflow:hidden}
+.mgrid img,.mgv{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:#222;position:relative}
+.mgv video{width:100%;height:100%;object-fit:cover;display:block}
+.mgv span{position:absolute;left:6px;bottom:6px;font-size:11px;color:#fff;background:rgba(0,0,0,.55);padding:1px 6px;border-radius:8px}
 @keyframes td{0%,60%,100%{opacity:.3;transform:none}30%{opacity:1;transform:translateY(-3px)}}
 .spin{display:inline-block;width:16px;height:16px;border:2px solid var(--accent-dim);border-top-color:var(--accent);border-radius:50%;animation:sp 1s linear infinite;vertical-align:middle}
 @keyframes sp{to{transform:rotate(360deg)}}
@@ -317,7 +389,7 @@ input,textarea,select{font:inherit;font-size:16px;color:var(--text)}
     Чаты</button>
   <button data-tab="chars">
     <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="8" r="3.6"/><path d="M2.5 19.3c.6-3.4 3.3-5.5 6.5-5.5s5.9 2.1 6.5 5.5c.1.4-.2.7-.6.7H3.1c-.4 0-.7-.3-.6-.7z"/><circle cx="17" cy="9" r="2.8" opacity=".75"/><path d="M16.3 13.6c2.6.1 4.7 1.9 5.2 4.7.1.4-.2.7-.6.7h-3.6c-.3-2.1-1.3-4-2.9-5.2.6-.1 1.2-.2 1.9-.2z" opacity=".75"/></svg>
-    Персонажи</button>
+    Контакты</button>
   <button data-tab="profile">
     <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4.2"/><path d="M3.5 20.5c.8-4 4.3-6.5 8.5-6.5s7.7 2.5 8.5 6.5c.1.4-.2.8-.7.8H4.2c-.5 0-.8-.4-.7-.8z"/></svg>
     Профиль</button>
@@ -334,7 +406,7 @@ input,textarea,select{font:inherit;font-size:16px;color:var(--text)}
    Все данные хранятся только в этом браузере (IndexedDB).
    ===================================================== */
 
-const VERSION = 'этап 2';
+const VERSION = 'этап 3';
 
 /* ---------- иконки ---------- */
 const IC = {
@@ -342,6 +414,7 @@ const IC = {
   chev:'<svg class="chev" viewBox="0 0 8 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m1 1 6 6-6 6"/></svg>',
   plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
   clip:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 11.5-8.6 8.6a5.5 5.5 0 0 1-7.8-7.8l8.6-8.6a3.7 3.7 0 0 1 5.2 5.2l-8.6 8.6a1.8 1.8 0 0 1-2.6-2.6l8-8"/></svg>',
+  cam:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><circle cx="12" cy="12" r="3.5"/></svg>',
   mic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="2.5" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3.5"/></svg>',
   send:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/></svg>',
   check:'<svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
@@ -393,16 +466,31 @@ const TECH_CHAT=`### Технические правила (обязательн
 - Если {{char}} по характеру и ситуации сейчас не стал(а) бы отвечать — обижен(а), занят(а), игнорит, спит — напиши только [игнор]. Сообщение будет прочитано, но без ответа. Не злоупотребляй.
 - Пометки в скобках — служебные. Сам их не пиши.`;
 const DEFAULT_GREETING = 'Привет, ты кто? Откуда у тебя мой номер?';
+const DEFAULT_LTM_PROMPT=`Ты ведёшь долгосрочную память {{format}} между {{char}} и {{user}}.
+
+Текущая память:
+{{memory}}
+
+Новые сообщения:
+{{messages}}
+
+Перепиши память целиком, добавив важное из новых сообщений: факты о {{user}} и {{char}}, события, договорённости и обещания, как меняются отношения, яркие эмоциональные моменты, шутки и прозвища. Старое важное сохраняй, устаревшее обновляй, мелочи убирай. Пиши кратко, пунктами, по-русски. Выведи только текст памяти.`;
 
 /* ---------- хранилище ---------- */
 const DB = {
   db:null,
-  open(){return new Promise((res,rej)=>{const r=indexedDB.open('veya',1);
-    r.onupgradeneeded=()=>r.result.createObjectStore('kv');
+  open(){return new Promise((res,rej)=>{const r=indexedDB.open('veya',2);
+    r.onupgradeneeded=()=>{const db=r.result;if(!db.objectStoreNames.contains('kv'))db.createObjectStore('kv');if(!db.objectStoreNames.contains('media'))db.createObjectStore('media');};
     r.onsuccess=()=>{this.db=r.result;res()};r.onerror=()=>rej(r.error);});},
-  get(k){return new Promise((res,rej)=>{const t=this.db.transaction('kv').objectStore('kv').get(k);t.onsuccess=()=>res(t.result);t.onerror=()=>rej(t.error);});},
-  set(k,v){return new Promise((res,rej)=>{const tx=this.db.transaction('kv','readwrite');tx.objectStore('kv').put(v,k);tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error);});},
-  clear(){return new Promise((res,rej)=>{const tx=this.db.transaction('kv','readwrite');tx.objectStore('kv').clear();tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error);});}
+  _req(store,mode,fn){return new Promise((res,rej)=>{const tx=this.db.transaction(store,mode);const st=tx.objectStore(store);const rq=fn(st);
+    tx.oncomplete=()=>res(rq&&rq.result);tx.onerror=()=>rej(tx.error);});},
+  get(k){return this._req('kv','readonly',st=>st.get(k));},
+  set(k,v){return this._req('kv','readwrite',st=>st.put(v,k));},
+  getMedia(k){return this._req('media','readonly',st=>st.get(k));},
+  putMedia(k,blob){return this._req('media','readwrite',st=>st.put(blob,k));},
+  delMedia(k){return this._req('media','readwrite',st=>st.delete(k));},
+  mediaKeys(){return this._req('media','readonly',st=>st.getAllKeys());},
+  clear(){return Promise.all([this._req('kv','readwrite',st=>st.clear()),this._req('media','readwrite',st=>st.clear())]);}
 };
 const S = {settings:null, characters:[], personas:[], chats:[]};
 function defaultSettings(){return{
@@ -410,7 +498,10 @@ function defaultSettings(){return{
   prompts:{chat:DEFAULT_PROMPTS.chat, rp:DEFAULT_PROMPTS.rp},
   contextTokens:32000, replyDelay:4, replyDelayKb:10,
   greeting:{enabled:true,text:DEFAULT_GREETING},
-  activePersonaId:null
+  activePersonaId:null,
+  media:{photo:true,voice:true,video:true},
+  slots:{imageGen:null,photo:null,voice:null,video:null},
+  ltm:{prompt:DEFAULT_LTM_PROMPT,apiId:null}
 };}
 async function load(){
   await DB.open();
@@ -519,6 +610,75 @@ function pickFiles(accept,multiple){
   return new Promise(res=>{const i=document.createElement('input');i.type='file';i.accept=accept;i.multiple=!!multiple;
     i.onchange=()=>res([...i.files]);i.click();});
 }
+
+/* ---------- медиа: хранение и преобразования ---------- */
+function blobToB64(blob){return new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>res(String(fr.result).split(',')[1]||'');fr.onerror=()=>rej(fr.error);fr.readAsDataURL(blob);});}
+function b64ToBlob(b64,mime){const bin=atob(b64);const u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return new Blob([u],{type:mime});}
+function dataUrlToBlob(u){const [h,b]=u.split(',');return b64ToBlob(b,h.slice(5).split(';')[0]);}
+const mediaUrls={};
+async function mediaUrl(id){
+  if(!id)return null;if(mediaUrls[id])return mediaUrls[id];
+  const blob=await DB.getMedia(id);if(!blob)return null;
+  return mediaUrls[id]=URL.createObjectURL(blob);
+}
+async function storeMedia(blob){const id='m_'+uid();await DB.putMedia(id,blob);return id;}
+async function deleteMediaOf(messages){for(const m of messages||[])if(m.mediaId){try{await DB.delMedia(m.mediaId);}catch{}if(mediaUrls[m.mediaId]){URL.revokeObjectURL(mediaUrls[m.mediaId]);delete mediaUrls[m.mediaId];}}}
+function fmtDur(s){s=Math.max(0,Math.round(s||0));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
+function fmtSize(n){return n>1048576?(n/1048576).toFixed(1)+' МБ':Math.max(1,Math.round(n/1024))+' КБ';}
+// голос → WAV 16 кГц моно (такой формат понимают и Gemini, и OpenAI)
+async function toWavB64(blob){
+  const AC=window.AudioContext||window.webkitAudioContext;const ac=new AC();
+  const buf=await new Promise((res,rej)=>blob.arrayBuffer().then(ab=>ac.decodeAudioData(ab,res,rej)));
+  ac.close&&ac.close();
+  const rate=16000;const len=Math.ceil(buf.duration*rate);
+  const off=new OfflineAudioContext(1,len,rate);const src=off.createBufferSource();src.buffer=buf;src.connect(off.destination);src.start();
+  const out=(await off.startRendering()).getChannelData(0);
+  const ab=new ArrayBuffer(44+out.length*2);const v=new DataView(ab);
+  const w=(o,str)=>{for(let i=0;i<str.length;i++)v.setUint8(o+i,str.charCodeAt(i));};
+  w(0,'RIFF');v.setUint32(4,36+out.length*2,true);w(8,'WAVE');w(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);
+  v.setUint32(24,rate,true);v.setUint32(28,rate*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);w(36,'data');v.setUint32(40,out.length*2,true);
+  for(let i=0;i<out.length;i++){const x=Math.max(-1,Math.min(1,out[i]));v.setInt16(44+i*2,x<0?x*0x8000:x*0x7fff,true);}
+  return blobToB64(new Blob([ab],{type:'audio/wav'}));
+}
+async function audioInfo(blob){ // длительность и «волна» для голосового
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext;const ac=new AC();
+    const buf=await new Promise((res,rej)=>blob.arrayBuffer().then(ab=>ac.decodeAudioData(ab,res,rej)));ac.close&&ac.close();
+    const d=buf.getChannelData(0);const n=36;const step=Math.floor(d.length/n)||1;const bars=[];
+    for(let i=0;i<n;i++){let m=0;for(let j=i*step;j<(i+1)*step&&j<d.length;j+=16)m=Math.max(m,Math.abs(d[j]));bars.push(m);}
+    const mx=Math.max(...bars,.01);return {duration:buf.duration,wave:bars.map(b=>Math.max(.12,b/mx))};
+  }catch{return {duration:0,wave:Array.from({length:36},()=>.2+Math.random()*.6)};}
+}
+function videoInfo(blob){return new Promise(res=>{const v=document.createElement('video');v.preload='metadata';v.muted=true;v.playsInline=true;
+  const done=()=>res({duration:isFinite(v.duration)?v.duration:0,w:v.videoWidth,h:v.videoHeight});
+  v.onloadedmetadata=done;v.onerror=()=>res({duration:0});v.src=URL.createObjectURL(blob);setTimeout(done,3000);});}
+// текст из .docx (это zip-архив; распаковываем word/document.xml встроенными средствами браузера)
+async function docxText(file){
+  const buf=new Uint8Array(await file.arrayBuffer());const dv=new DataView(buf.buffer);
+  let eocd=-1;for(let i=buf.length-22;i>=0;i--){if(dv.getUint32(i,true)===0x06054b50){eocd=i;break;}}
+  if(eocd<0)throw new Error('Не похоже на .docx');
+  let p=dv.getUint32(eocd+16,true);const n=dv.getUint16(eocd+10,true);const td=new TextDecoder();
+  for(let k=0;k<n;k++){
+    const method=dv.getUint16(p+10,true),csize=dv.getUint32(p+20,true),nl=dv.getUint16(p+28,true),el=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true),loff=dv.getUint32(p+42,true);
+    const name=td.decode(buf.slice(p+46,p+46+nl));
+    if(name==='word/document.xml'){
+      const lnl=dv.getUint16(loff+26,true),lel=dv.getUint16(loff+28,true);const data=buf.slice(loff+30+lnl+lel,loff+30+lnl+lel+csize);
+      let xml;
+      if(method===0)xml=td.decode(data);
+      else{const ds=new DecompressionStream('deflate-raw');xml=await new Response(new Blob([data]).stream().pipeThrough(ds)).text();}
+      return xml.replace(/<w:tab\/>/g,'\t').replace(/<\/w:p>/g,'\n').replace(/<[^>]+>/g,'').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&apos;/g,"'").trim();
+    }
+    p+=46+nl+el+cl;
+  }
+  throw new Error('В .docx нет текста');
+}
+async function readFileText(file){
+  const name=(file.name||'').toLowerCase();
+  if(name.endsWith('.docx'))return await docxText(file);
+  if(file.type==='application/pdf'||name.endsWith('.pdf'))return null; // pdf отправляется как файл
+  return await file.text();
+}
+const MEDIA_LABEL={photo:'📷 Фото',video:'🎬 Видео',voice:'🎤 Голосовое',circle:'⭕ Кружочек',file:'📎 Файл'};
 
 /* ---------- листы, окна ---------- */
 function overlay(onClose){const o=document.createElement('div');o.className='overlay';app.appendChild(o);requestAnimationFrame(()=>o.classList.add('show'));o.onclick=onClose;return o;}
@@ -673,7 +833,7 @@ function apiHeaders(api,proto){
 async function httpJson(url,opts){
   let res;
   try{res=await fetch(url,opts);}
-  catch(e){throw new Error('Не удалось связаться с сервером. Проверьте адрес и интернет. Возможно, провайдер не разрешает запросы из браузера. ('+e.message+')');}
+  catch(e){if(e.name==='AbortError')throw e;throw new Error('Не удалось связаться с сервером. Проверьте адрес и интернет. Возможно, провайдер не разрешает запросы из браузера. ('+e.message+')');}
   const text=await res.text();
   let data=null;try{data=JSON.parse(text);}catch{}
   if(!res.ok){
@@ -694,28 +854,36 @@ async function fetchModels(api){
   else if(Array.isArray(data))list=data.map(m=>cleanModel(m.id||m.name||m));
   return [...new Set(list.filter(Boolean))].sort((a,b)=>a.localeCompare(b));
 }
-// turns: [{role:'user'|'assistant', text}]
+// Что модель может принять напрямую (без расшифровки)
+function canAccept(api,mime){
+  if(!api)return false;const p=protocolOf(api);
+  if(p==='gemini')return /^(image|audio|video)\//.test(mime)||mime==='application/pdf';
+  if(p==='anthropic')return /^image\//.test(mime)||mime==='application/pdf';
+  return /^image\//.test(mime)||mime==='audio/wav';
+}
+// turns: [{role:'user'|'assistant', text, media:[{mime,data(base64)}]}]
 function normalizeTurns(turns){
   const out=[];
-  for(const t of turns){if(!t.text)continue;const last=out[out.length-1];
-    if(last&&last.role===t.role)last.text+='\n'+t.text;else out.push({role:t.role,text:t.text});}
-  if(!out.length||out[0].role!=='user')out.unshift({role:'user',text:'(начало переписки)'});
+  for(const t of turns){if(!t.text&&!(t.media&&t.media.length))continue;const last=out[out.length-1];
+    if(last&&last.role===t.role){last.text=[last.text,t.text].filter(Boolean).join('\n');last.media=last.media.concat(t.media||[]);}
+    else out.push({role:t.role,text:t.text||'',media:[...(t.media||[])]});}
+  if(!out.length||out[0].role!=='user')out.unshift({role:'user',text:'(начало переписки)',media:[]});
   return out;
 }
-async function callModel(api,system,turnsIn){
-  if(!api||!api.baseUrl||!api.key||!api.model)throw new Error('API не настроен: заполните адрес, ключ и модель в Настройках.');
+const SAFETY=['HARM_CATEGORY_HARASSMENT','HARM_CATEGORY_HATE_SPEECH','HARM_CATEGORY_SEXUALLY_EXPLICIT','HARM_CATEGORY_DANGEROUS_CONTENT'].map(c=>({category:c,threshold:'BLOCK_NONE'}));
+function checkApi(api){if(!api||!api.baseUrl||!api.key||!api.model)throw new Error('API не настроен: заполните адрес, ключ и модель в Настройках.');}
+async function callModel(api,system,turnsIn,{signal}={}){
+  checkApi(api);
   const proto=protocolOf(api);const turns=normalizeTurns(turnsIn);const model=cleanModel(api.model);
   const headers=Object.assign({'Content-Type':'application/json'},apiHeaders(api,proto));
   if(proto==='gemini'){
     const url=joinUrl(api.baseUrl,'models/'+encodeURIComponent(model)+':generateContent')+'?key='+encodeURIComponent(api.key.trim());
-    const cats=['HARM_CATEGORY_HARASSMENT','HARM_CATEGORY_HATE_SPEECH','HARM_CATEGORY_SEXUALLY_EXPLICIT','HARM_CATEGORY_DANGEROUS_CONTENT'];
     const body={
       systemInstruction:{parts:[{text:system}]},
-      contents:turns.map(t=>({role:t.role==='assistant'?'model':'user',parts:[{text:t.text}]})),
-      safetySettings:cats.map(c=>({category:c,threshold:'BLOCK_NONE'})),
-      generationConfig:{temperature:1}
+      contents:turns.map(t=>({role:t.role==='assistant'?'model':'user',parts:[...t.media.map(m=>({inline_data:{mime_type:m.mime,data:m.data}})),...(t.text?[{text:t.text}]:[])]})),
+      safetySettings:SAFETY,generationConfig:{temperature:1}
     };
-    const data=await httpJson(url,{method:'POST',headers,body:JSON.stringify(body)});
+    const data=await httpJson(url,{method:'POST',headers,body:JSON.stringify(body),signal});
     const cand=data.candidates&&data.candidates[0];
     const text=cand&&cand.content&&cand.content.parts?cand.content.parts.filter(p=>!p.thought&&p.text).map(p=>p.text).join(''):'';
     if(!text){
@@ -725,31 +893,92 @@ async function callModel(api,system,turnsIn){
     return text;
   }
   if(proto==='anthropic'){
-    const body={model,max_tokens:4096,system,messages:turns.map(t=>({role:t.role,content:t.text}))};
-    const data=await httpJson(joinUrl(api.baseUrl,'messages'),{method:'POST',headers,body:JSON.stringify(body)});
+    const content=t=>t.media.length?[...t.media.map(m=>m.mime==='application/pdf'?{type:'document',source:{type:'base64',media_type:m.mime,data:m.data}}:{type:'image',source:{type:'base64',media_type:m.mime,data:m.data}}),...(t.text?[{type:'text',text:t.text}]:[])]:t.text;
+    const body={model,max_tokens:4096,system,messages:turns.map(t=>({role:t.role,content:content(t)}))};
+    const data=await httpJson(joinUrl(api.baseUrl,'messages'),{method:'POST',headers,body:JSON.stringify(body),signal});
     const text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
     if(!text)throw new Error('Модель вернула пустой ответ.');
     return text;
   }
-  const body={model,messages:[{role:'system',content:system},...turns.map(t=>({role:t.role,content:t.text}))],temperature:1};
-  const data=await httpJson(joinUrl(api.baseUrl,'chat/completions'),{method:'POST',headers,body:JSON.stringify(body)});
+  const content=t=>t.media.length?[...(t.text?[{type:'text',text:t.text}]:[]),...t.media.map(m=>m.mime==='audio/wav'?{type:'input_audio',input_audio:{data:m.data,format:'wav'}}:{type:'image_url',image_url:{url:`data:${m.mime};base64,${m.data}`}})]:t.text;
+  const body={model,messages:[{role:'system',content:system},...turns.map(t=>({role:t.role,content:content(t)}))],temperature:1};
+  const data=await httpJson(joinUrl(api.baseUrl,'chat/completions'),{method:'POST',headers,body:JSON.stringify(body),signal});
   let text=data.choices&&data.choices[0]&&data.choices[0].message?data.choices[0].message.content:'';
   if(Array.isArray(text))text=text.map(p=>p.text||'').join('');
   if(!text)throw new Error('Модель вернула пустой ответ.');
   return text;
+}
+// Генерация картинки. refs: [{mime,data}]. Возвращает {mime,data}
+async function callImage(api,prompt,refs=[],{signal}={}){
+  checkApi(api);
+  const proto=protocolOf(api);const model=cleanModel(api.model);
+  const headers=Object.assign({'Content-Type':'application/json'},apiHeaders(api,proto));
+  if(proto==='gemini'){
+    const url=joinUrl(api.baseUrl,'models/'+encodeURIComponent(model)+':generateContent')+'?key='+encodeURIComponent(api.key.trim());
+    const body={contents:[{role:'user',parts:[...refs.map(m=>({inline_data:{mime_type:m.mime,data:m.data}})),{text:prompt}]}],
+      safetySettings:SAFETY,generationConfig:{responseModalities:['TEXT','IMAGE']}};
+    const data=await httpJson(url,{method:'POST',headers,body:JSON.stringify(body),signal});
+    const parts=data.candidates?.[0]?.content?.parts||[];
+    const img=parts.map(p=>p.inlineData||p.inline_data).find(Boolean);
+    if(!img){const t=parts.map(p=>p.text).filter(Boolean).join(' ');
+      throw new Error('Модель не вернула картинку'+(t?': '+t.slice(0,200):(data.candidates?.[0]?.finishReason?' ('+data.candidates[0].finishReason+')':''))+'. Проверьте, что выбрана модель, которая умеет рисовать.');}
+    return {mime:img.mimeType||img.mime_type||'image/png',data:img.data};
+  }
+  if(proto==='anthropic')throw new Error('Модели Anthropic не умеют рисовать картинки. Выберите другую модель для генерации.');
+  // OpenAI-совместимые посредники: сначала через чат (как у Gemini-картинок), потом /images/generations
+  try{
+    const body={model,modalities:['image','text'],messages:[{role:'user',content:[{type:'text',text:prompt},...refs.map(m=>({type:'image_url',image_url:{url:`data:${m.mime};base64,${m.data}`}}))]}]};
+    const data=await httpJson(joinUrl(api.baseUrl,'chat/completions'),{method:'POST',headers,body:JSON.stringify(body),signal});
+    const msg=data.choices?.[0]?.message||{};
+    let url=msg.images?.[0]?.image_url?.url||(Array.isArray(msg.content)?(msg.content.find(c=>c.type==='image_url')||{}).image_url?.url:null);
+    if(!url&&typeof msg.content==='string'){const m=msg.content.match(/data:image\/[a-z]+;base64,[A-Za-z0-9+/=]+/)||msg.content.match(/https?:\/\/\S+\.(png|jpe?g|webp)/i);if(m)url=m[0];}
+    if(url)return await urlToImage(url);
+  }catch(e){if(e.name==='AbortError')throw e;}
+  const data=await httpJson(joinUrl(api.baseUrl,'images/generations'),{method:'POST',headers,body:JSON.stringify({model,prompt,n:1,response_format:'b64_json'}),signal});
+  const d=data.data&&data.data[0];
+  if(d&&d.b64_json)return {mime:'image/png',data:d.b64_json};
+  if(d&&d.url)return await urlToImage(d.url);
+  throw new Error('Модель не вернула картинку.');
+}
+async function urlToImage(url){
+  if(url.startsWith('data:')){const [h,b]=url.split(',');return {mime:h.slice(5).split(';')[0],data:b};}
+  const r=await fetch(url);const blob=await r.blob();return {mime:blob.type||'image/png',data:await blobToB64(blob)};
 }
 
 /* =====================================================
    Сборка запроса и разбор ответа
    ===================================================== */
 function chatTz(chat){return (chat&&chat.tz)||Intl.DateTimeFormat().resolvedOptions().timeZone;}
-function buildPrompt(chat,{first=false,cont=false}={}){
+const PHOTO_FREQ={never:'никогда',rare:'редко',sometimes:'иногда',often:'часто'};
+const PHOTO_FREQ_TEXT={rare:'очень редко — только когда это по-настоящему естественно',sometimes:'иногда, когда это к месту',often:'часто — когда есть хоть какой-то повод показать, что происходит'};
+function mediaRules(chat,userName){
+  const md=S.settings.media;const can=[],cannot=[];
+  (md.photo?can:cannot).push('фото');(md.voice?can:cannot).push('голосовые');(md.video?can:cannot).push('кружочки и видео');
+  let r='';
+  if(can.length)r+=`\n- ${userName} может присылать тебе: ${can.join(', ')}, а также файлы. Ты их видишь и слышишь. Иногда, если уместно по ситуации, можешь сам(а) попросить прислать.`;
+  if(cannot.length)r+=`\n- ${userName} не может присылать: ${cannot.join(', ')}. Никогда не проси их и не упоминай.`;
+  r+='\n- Ты не можешь отправлять голосовые и кружочки.';
+  const f=chat.photoFreq||'sometimes';
+  if(f!=='never')r+=`\n- Ты можешь отправить своё фото (${PHOTO_FREQ_TEXT[f]}): отдельной строкой [фото: что в кадре — место, поза, выражение лица, одежда, ракурс, свет]. Внешность не описывай — она и так известна. Если на фото должен(а) быть и ${userName} — пиши [фото вместе: …]. Фото — это селфи или снимок на телефон.`;
+  else r+='\n- Ты не отправляешь фото.';
+  return r;
+}
+// как медиа-сообщение выглядит для модели: текстом или самим файлом
+function mediaTag(m,inlined=false){
+  const cap=m.text?` с подписью: «${m.text}»`:'';
+  if(m.role==='bot'&&m.type==='photo')return `[ты отправил(а) фото: ${m.photoPrompt||'фото'}]`;
+  if(m.type==='file')return m.fileText!=null?`[файл «${m.name}»]\n${m.fileText.slice(0,30000)}`:`[файл «${m.name}»]`;
+  const kind={photo:'фото',video:'видео',voice:'голосовое сообщение',circle:'кружочек (видео с фронтальной камеры)'}[m.type]||'вложение';
+  if(m.desc&&!inlined)return `[${kind}${cap}: ${m.desc}]`;
+  return `[${kind}${cap}]`;
+}
+function buildPrompt(chat,{first=false,cont=false,inline={}}={}){
   const ch=charById(chat.characterId);const persona=personaById(chat.personaId)||personaById(S.settings.activePersonaId);
   const userName=(persona&&persona.name)||'Собеседник';const charName=ch.name||'Персонаж';
   const mac=s=>(s||'').replace(/\{\{char\}\}/gi,charName).replace(/\{\{user\}\}/gi,userName).replace(/<BOT>/g,charName).replace(/<USER>/g,userName);
   const mode=chatMode(chat);const isChat=mode==='chat';
   let system=mac(S.settings.prompts[mode]||DEFAULT_PROMPTS[mode]);
-  if(isChat)system+='\n\n'+mac(TECH_CHAT);
+  if(isChat)system+='\n\n'+mac(TECH_CHAT)+mediaRules(chat,userName);
   system+=`\n\n### Персонаж: ${charName}\n${mac(ch.personality)||'(описание не заполнено)'}`;
   if(persona)system+=`\n\n### Собеседник: ${userName}\n${mac(persona.description)||'(описание не заполнено)'}`;
   if(chat.relation&&chat.relation.trim())system+=`\n\n### ${isChat?'Кто вы друг другу':'Сценарий / предыстория'}\n${mac(chat.relation)}`;
@@ -763,17 +992,18 @@ function buildPrompt(chat,{first=false,cont=false}={}){
   }
 
   const budget=Math.max(1000,(S.settings.contextTokens||32000)-estTokens(system)-800);
-  const msgs=chat.messages.filter(m=>m.role==='user'||m.role==='bot');
+  const msgs=chat.messages.filter(m=>(m.role==='user'||m.role==='bot')&&!(m.type==='photo'&&m.role==='bot'&&m.status!=='done'));
   const turns=[];let used=0;
   for(let i=msgs.length-1;i>=0;i--){
-    const m=msgs[i];let text=m.text;
+    const m=msgs[i];const media=inline[m.id]?[inline[m.id]]:[];
+    let text=m.type&&m.type!=='text'?mediaTag(m,!!media.length):m.text;
     if(m.replyTo){const q=chat.messages.find(x=>x.id===m.replyTo);
-      if(q&&m.role==='user')text=`(отвечает на ${q.role==='bot'?'твоё сообщение':'своё сообщение'}: «${q.text.slice(0,120)}»)\n`+text;
-      else if(q)text=`[re: ${q.text.split(/\s+/).slice(0,5).join(' ')}] `+text;}
+      if(q&&m.role==='user')text=`(отвечает на ${q.role==='bot'?'твоё сообщение':'своё сообщение'}: «${(q.text||MEDIA_LABEL[q.type]||'').slice(0,120)}»)\n`+text;
+      else if(q)text=`[re: ${(q.text||'').split(/\s+/).slice(0,5).join(' ')}] `+text;}
     const prev=msgs[i-1];
     if(isChat&&prev&&m.ts-prev.ts>60*6e4)text=`(прошло ${fmtGap(m.ts-prev.ts)})\n`+text;
-    const t=estTokens(text);if(used+t>budget)break;used+=t;
-    turns.unshift({role:m.role==='user'?'user':'assistant',text});
+    const t=estTokens(text)+(media.length?300:0);if(used+t>budget)break;used+=t;
+    turns.unshift({role:m.role==='user'?'user':'assistant',text,media});
   }
   const last=msgs[msgs.length-1];
   if(first){
@@ -785,7 +1015,46 @@ function buildPrompt(chat,{first=false,cont=false}={}){
   }
   return {system,turns,charName,userName,mode};
 }
-// Ответ модели → список сообщений [{text, quote}] или {ignore:true}
+// Подготовка медиа перед запросом: то, что основная модель понимает сама, уходит файлом;
+// для остального используется модель из слота (расшифровка/описание), результат запоминается.
+const SLOT_OF={photo:'photo',voice:'voice',circle:'video',video:'video'};
+const DESCRIBE_TASK={
+  photo:'Опиши это фото подробно и по делу: кто/что в кадре, обстановка, эмоции, детали, текст на фото. Пиши по-русски, только описание.',
+  voice:'Это голосовое сообщение. Расшифруй его дословно, потом в скобках коротко — интонация и настроение. Пиши по-русски, только это.',
+  video:'Это видео. Опиши, что происходит, эмоции и детали, и дословно перескажи, что говорят. По-русски, только описание.',
+};
+async function mediaPayload(m){
+  const blob=await DB.getMedia(m.mediaId);if(!blob)return null;
+  if(m.type==='voice')return {mime:'audio/wav',data:await toWavB64(blob)};
+  let mime=blob.type||m.mime||'application/octet-stream';
+  if(m.type==='circle'||m.type==='video'){mime=mime.split(';')[0];if(mime==='video/quicktime')mime='video/mov';}
+  return {mime,data:await blobToB64(blob)};
+}
+async function prepareMedia(chat,mainApi,signal,onStep){
+  const inline={};
+  const recent=chat.messages.filter(m=>m.role==='user'&&m.mediaId&&m.type!=='file'||m.role==='user'&&m.type==='file'&&m.mime==='application/pdf').slice(-6);
+  const inlineIds=new Set(recent.slice(-3).map(m=>m.id)); // самые свежие отправляем файлом
+  for(const m of recent){
+    if(m.desc)continue;
+    const kind=m.type==='file'?'pdf':m.type;
+    const slotId=S.settings.slots[SLOT_OF[kind]];
+    const slot=slotId&&S.settings.apis.find(a=>a.id===slotId);
+    try{
+      if(slot){ // описать отдельной моделью
+        onStep&&onStep(kind);
+        const p=await mediaPayload(m);if(!p)continue;
+        const task=DESCRIBE_TASK[kind==='circle'?'video':kind]||DESCRIBE_TASK.photo;
+        m.desc=(await callModel(slot,'Ты помощник, который описывает вложения из переписки.',[{role:'user',text:task,media:[p]}],{signal})).trim();
+        save('chats');
+      }else if(inlineIds.has(m.id)){
+        const p=await mediaPayload(m);
+        if(p&&canAccept(mainApi,p.mime))inline[m.id]=p;
+      }
+    }catch(e){if(e.name==='AbortError')throw e;m.descError=e.message;}
+  }
+  return inline;
+}
+// Ответ модели → список сообщений [{text, quote, photo, together}] или {ignore:true}
 function parseReply(raw,charName,mode){
   let t=(raw||'').replace(/\r/g,'').trim();
   const namePrefix=new RegExp('^\\s*'+charName.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\s*:\\s*','i');
@@ -799,6 +1068,8 @@ function parseReply(raw,charName,mode){
   for(let l of t.split(/\n+/)){
     l=l.trim().replace(namePrefix,'').replace(/^\((прошло|с этого|отвечает|ответ на)[^)]*\)\s*/i,'').trim();
     if(!l||/^\[\s*игнор\s*\]$/i.test(l))continue;
+    const ph=l.match(/^\[\s*(фото|photo|селфи)(\s+вместе)?\s*:\s*([^\]]+)\]\s*(.*)$/i);
+    if(ph){out.push({photo:ph[3].trim(),together:!!ph[2]});if(ph[4].trim())out.push({text:ph[4].trim()});continue;}
     let quote=null;const m=l.match(/^\[(?:re|ответ|цитата)\s*:\s*([^\]]+)\]\s*/i);
     if(m){quote=m[1].trim();l=l.slice(m[0].length).trim();}
     l=l.replace(/^[«"](.*)[»"]$/,'$1').trim();
@@ -808,7 +1079,7 @@ function parseReply(raw,charName,mode){
 }
 function findQuoted(chat,frag){
   if(!frag)return null;const f=frag.toLowerCase().replace(/[«»"]/g,'').trim();if(!f)return null;
-  const users=chat.messages.filter(m=>m.role==='user').slice(-15).reverse();
+  const users=chat.messages.filter(m=>m.role==='user'&&m.text).slice(-15).reverse();
   return (users.find(m=>m.text.toLowerCase().includes(f))||users.find(m=>{const w=f.split(/\s+/).slice(0,2).join(' ');return w&&m.text.toLowerCase().includes(w);})||{}).id||null;
 }
 
@@ -832,14 +1103,14 @@ function onChatOpened(chat){
   if(!realistic(chat)){if(!isOnline(chat))setOnline(chat,true);return;}
   const last=chat.messages[chat.messages.length-1];
   const active=last&&Date.now()-last.ts<10*6e4;
-  if(active)return; // идёт переписка — состояние не трогаем
+  if(active)return;
   if(Math.random()<.5)setOnline(chat,true,rnd(60,240)*1000);else setOnline(chat,false);
 }
-function presenceTick(chat){ // раз в минуту, пока чат открыт
+function presenceTick(chat){
   if(!realistic(chat)||generating.has(chat.id)||replyTimers[chat.id])return;
   const last=chat.messages[chat.messages.length-1];
   if(last&&Date.now()-last.ts<3*6e4)return;
-  if(!isOnline(chat)&&Math.random()<.08)setOnline(chat,true,rnd(30,90)*1000); // зашёл и ничего не написал
+  if(!isOnline(chat)&&Math.random()<.08)setOnline(chat,true,rnd(30,90)*1000);
 }
 
 /* =====================================================
@@ -847,12 +1118,12 @@ function presenceTick(chat){ // раз в минуту, пока чат откр
    ===================================================== */
 const generating=new Set();
 const replyTimers={};
+const aborters={};      // chatId -> AbortController текущего ответа
+const busyLabel={};     // chatId -> 'смотрит фото…' и т.п.
 function chatChanged(chatId){
   nav.stack.forEach(it=>{if(it.el.chatId===chatId||it.el.listensChats)refreshItem(it);});
 }
-const composers={}; // chatId -> поле ввода открытого чата
-// Пока в поле есть недописанный текст — бот не отвечает; клавиатура открыта — ждёт дольше.
-// Если бот «не в сети», он ещё и читает не сразу.
+const composers={};
 function replyDelayFor(chatId){
   const chat=chatById(chatId);const ta=composers[chatId];
   if(chatMode(chat)==='rp')return 600;
@@ -866,8 +1137,43 @@ function scheduleReply(chatId,delay){
   replyTimers[chatId]=setTimeout(()=>{
     const ta=composers[chatId];
     if(ta&&ta.isConnected&&ta.value.trim()){scheduleReply(chatId,1500);return;}
+    if(recorder&&recorder.chatId===chatId){scheduleReply(chatId,1500);return;} // юзер записывает голосовое/кружок
     delete replyTimers[chatId];generate(chatId);
   },delay??replyDelayFor(chatId));
+}
+function stopGeneration(chatId){
+  const a=aborters[chatId];if(a)a.abort();
+  clearTimeout(replyTimers[chatId]);delete replyTimers[chatId];
+}
+function imageApi(chat){const id=S.settings.slots.imageGen;return (id&&S.settings.apis.find(a=>a.id===id))||chatApi(chat);}
+async function photoRefs(chat,together){
+  const ch=charById(chat.characterId);const refs=[];
+  for(const p of (ch.photos||[]).filter(p=>p.ref).slice(0,5)){const [h,b]=p.src.split(',');refs.push({mime:h.slice(5).split(';')[0],data:b});}
+  let personaRef=false;
+  if(together){const pr=personaById(chat.personaId)||personaById(S.settings.activePersonaId);
+    if(pr&&pr.photo){const [h,b]=pr.photo.split(',');refs.push({mime:h.slice(5).split(';')[0],data:b});personaRef=true;}}
+  return {refs,charCount:refs.length-(personaRef?1:0),personaRef};
+}
+function photoPrompt(chat,desc,{charCount,personaRef}){
+  const ch=charById(chat.characterId);const pr=personaById(chat.personaId)||personaById(S.settings.activePersonaId);
+  let p=`Реалистичная фотография, снятая на камеру телефона, как будто её только что прислали в мессенджере. Естественный свет, лёгкий шум и несовершенства любительского снимка, без студийного глянца.`;
+  if(charCount)p+=` На фото ${ch.name}: внешность (лицо, причёска, черты) строго как у человека на ${charCount>1?'первых '+charCount+' изображениях':'первом изображении'}.`;
+  if(personaRef)p+=` Рядом ${pr.name} — внешность строго как у человека на последнем изображении.`;
+  p+=`\nСцена: ${desc}`;
+  return p;
+}
+async function makeBotPhoto(chatId,msg,signal){
+  const chat=chatById(chatId);
+  msg.status='pending';save('chats');chatChanged(chatId);
+  try{
+    const r=await photoRefs(chat,msg.together);
+    const img=await callImage(imageApi(chat),photoPrompt(chat,msg.photoPrompt,r),r.refs,{signal});
+    msg.mediaId=await storeMedia(b64ToBlob(img.data,img.mime));msg.mime=img.mime;msg.status='done';delete msg.error;
+  }catch(e){
+    if(e.name==='AbortError'){chat.messages=chat.messages.filter(x=>x!==msg);}
+    else{msg.status='failed';msg.error=e.message;}
+  }
+  save('chats');chatChanged(chatId);
 }
 async function generate(chatId,opts={}){
   if(generating.has(chatId))return;
@@ -875,12 +1181,15 @@ async function generate(chatId,opts={}){
   const api=chatApi(chat);
   if(!api||!api.key||!api.model){toast('Сначала подключите API: Настройки → API подключения');return;}
   generating.add(chatId);
+  const ctrl=new AbortController();aborters[chatId]=ctrl;const signal=ctrl.signal;
   chat.messages=chat.messages.filter(m=>m.role!=='error');
   chat.messages.forEach(m=>{if(m.role==='user')m.status='read';});
   setOnline(chat,true);
   try{
-    const {system,turns,charName,mode}=buildPrompt(chat,opts);
-    const raw=await callModel(api,system,turns);
+    const inline=await prepareMedia(chat,api,signal,k=>{busyLabel[chatId]={photo:'смотрит фото…',voice:'слушает голосовое…',circle:'смотрит кружочек…',video:'смотрит видео…'}[k]||'смотрит…';chatChanged(chatId);});
+    delete busyLabel[chatId];chatChanged(chatId);
+    const {system,turns,charName,mode}=buildPrompt(chat,Object.assign({},opts,{inline}));
+    const raw=await callModel(api,system,turns,{signal});
     const parts=parseReply(raw,charName,mode);
     if(parts.ignore){
       chat.ignoredAt=Date.now();
@@ -890,37 +1199,41 @@ async function generate(chatId,opts={}){
     }
     if(!parts.length)throw new Error('Модель вернула пустой ответ. Попробуйте ещё раз.');
     for(let i=0;i<parts.length;i++){
-      if(i>0)await sleep(Math.min(600+parts[i].text.length*38,3800));
+      if(signal.aborted)break;
+      const p=parts[i];
+      if(i>0&&!p.photo)await sleep(Math.min(600+(p.text||'').length*38,3800));
       else await sleep(mode==='rp'?0:250);
-      if(!chatById(chatId))return;
-      chat.messages.push({id:uid(),role:'bot',text:parts[i].text,ts:Date.now(),replyTo:parts[i].quote?findQuoted(chat,parts[i].quote):null});
+      if(!chatById(chatId)||signal.aborted)break;
+      if(p.photo){
+        if((chat.photoFreq||'sometimes')==='never')continue;
+        const msg={id:uid(),role:'bot',type:'photo',text:'',photoPrompt:p.photo,together:p.together,ts:Date.now(),status:'pending'};
+        chat.messages.push(msg);busyLabel[chatId]='отправляет фото…';
+        await makeBotPhoto(chatId,msg,signal);
+        delete busyLabel[chatId];msg.ts=Date.now();
+      }else chat.messages.push({id:uid(),role:'bot',text:p.text,ts:Date.now(),replyTo:p.quote?findQuoted(chat,p.quote):null});
       chat.botLastSeen=Date.now();
       save('chats');chatChanged(chatId);
     }
   }catch(e){
-    chat.messages.push({id:uid(),role:'error',text:e.message,ts:Date.now()});
-    save('chats');
+    if(e.name!=='AbortError'){chat.messages.push({id:uid(),role:'error',text:e.message,ts:Date.now()});save('chats');}
   }finally{
+    delete aborters[chatId];delete busyLabel[chatId];
     if(generating.has(chatId)){
       generating.delete(chatId);
-      // иногда после ответа выходит из сети
       if(realistic(chat)&&Math.random()<.15)setTimeout(()=>{if(!generating.has(chatId)&&!replyTimers[chatId])setOnline(chat,false);},rnd(20,60)*1000);
     }
     chatChanged(chatId);
     const last=chat.messages.filter(m=>m.role!=='error').pop();
     const hadErr=chat.messages.length&&chat.messages[chat.messages.length-1].role==='error';
-    if(last&&last.role==='user'&&last.status!=='read'&&!hadErr)scheduleReply(chatId);
-    maybeSummarize(chatId);
+    if(!signal.aborted&&last&&last.role==='user'&&last.status!=='read'&&!hadErr)scheduleReply(chatId);
+    if(!signal.aborted)maybeSummarize(chatId);
   }
 }
-// перегенерация с конкретного сообщения бота: всё выше остаётся, это и ниже — заново; старый вариант сохраняется
 async function regenerateFrom(chatId,msgId){
   const chat=chatById(chatId);if(!chat||generating.has(chatId))return;
   chat.messages=chat.messages.filter(m=>m.role!=='error');
   let idx=msgId?chat.messages.findIndex(m=>m.id===msgId):-1;
-  if(idx<0){ // с начала последней пачки
-    idx=chat.messages.length;while(idx>0&&chat.messages[idx-1].role==='bot')idx--;
-  }
+  if(idx<0){idx=chat.messages.length;while(idx>0&&chat.messages[idx-1].role==='bot')idx--;}
   const anchor=idx>0?chat.messages[idx-1].id:null;
   const tail=chat.messages.slice(idx);
   const sw=chat.swipe&&chat.swipe.anchor===anchor?chat.swipe:{anchor,items:[],idx:0};
@@ -942,7 +1255,6 @@ function swipeInfo(chat){
     const tail=chat.messages.slice(ai+1);
     if((!sw.anchor||ai>=0)&&tail.length&&tail.every(m=>m.role==='bot'))return {sw,ai,lastId:tail[tail.length-1].id};
   }
-  // вариантов ещё нет: стрелочка › у последнего ответа бота сделает новый вариант
   let ai=chat.messages.length-1;while(ai>=0&&chat.messages[ai].role==='bot')ai--;
   const tail=chat.messages.slice(ai+1);
   if(ai<0||chat.messages[ai].role!=='user'||!tail.length)return null;
@@ -951,7 +1263,7 @@ function swipeInfo(chat){
 function swipeTo(chatId,dir){
   const chat=chatById(chatId);const info=swipeInfo(chat);if(!info||generating.has(chatId))return;
   const {sw,ai}=info;
-  if(dir>0&&sw.idx>=sw.items.length-1){regenerateFrom(chatId,chat.messages[ai+1].id);return;} // справа от последнего — новый вариант
+  if(dir>0&&sw.idx>=sw.items.length-1){regenerateFrom(chatId,chat.messages[ai+1].id);return;}
   sw.items[sw.idx]=chat.messages.slice(ai+1);
   sw.idx=Math.max(0,Math.min(sw.items.length-1,sw.idx+dir));
   chat.messages=chat.messages.slice(0,ai+1).concat(JSON.parse(JSON.stringify(sw.items[sw.idx])));
@@ -959,28 +1271,35 @@ function swipeTo(chatId,dir){
 }
 
 /* =====================================================
-   Долгая память: выжимка каждые N сообщений
+   Долгая память
    ===================================================== */
 const summarizing=new Set();
+function ltmApi(chat){const id=S.settings.ltm.apiId;return (id&&S.settings.apis.find(a=>a.id===id))||chatApi(chat);}
 async function maybeSummarize(chatId,force=false){
-  const chat=chatById(chatId);if(!chat||!chat.ltm||(!chat.ltm.enabled&&!force)||summarizing.has(chatId))return;
+  const chat=chatById(chatId);if(!chat||!chat.ltm||summarizing.has(chatId))return;
+  if(!force&&(!chat.ltm.enabled||chat.ltm.auto===false))return;
   const fresh=chat.messages.filter(m=>(m.role==='user'||m.role==='bot')&&m.ts>(chat.ltm.upTo||0));
   if(!force&&fresh.length<(chat.ltm.every||30))return;
   if(!fresh.length){if(force)toast('Нет новых сообщений для памяти');return;}
-  const api=chatApi(chat);if(!api)return;
+  const api=ltmApi(chat);if(!api)return;
   const ch=charById(chat.characterId)||{name:'Персонаж'};const p=personaById(chat.personaId)||personaById(S.settings.activePersonaId);
   const un=p?p.name:'Собеседник';
-  summarizing.add(chatId);
+  summarizing.add(chatId);chatChanged(chatId);
   try{
-    const lines=fresh.map(m=>`${m.role==='user'?un:ch.name}: ${m.text}`).join('\n');
-    const sys=`Ты ведёшь краткую долгосрочную память ${chatMode(chat)==='chat'?'переписки':'ролевой игры'} между ${ch.name} и ${un}. Пиши по-русски, только текст памяти.`;
-    const ask=`Текущая память:\n${chat.ltm.text||'(пусто)'}\n\nНовые сообщения:\n${lines}\n\nПерепиши память целиком, добавив важное из новых сообщений: факты о ${un} и ${ch.name}, события, договорённости, как меняются отношения, яркие эмоциональные моменты, шутки и прозвища. Мелочи убирай. Кратко, пунктами, не больше 250 слов.`;
-    const text=await callModel(api,sys,[{role:'user',text:ask}]);
+    const lines=fresh.map(m=>`${m.role==='user'?un:ch.name}: ${m.type&&m.type!=='text'?mediaTag(m):m.text}`).join('\n');
+    let ask=(S.settings.ltm.prompt||DEFAULT_LTM_PROMPT)
+      .replace(/\{\{char\}\}/gi,ch.name).replace(/\{\{user\}\}/gi,un)
+      .replace(/\{\{format\}\}/gi,chatMode(chat)==='chat'?'переписки':'ролевой игры');
+    const hasMem=/\{\{memory\}\}/i.test(ask),hasMsg=/\{\{messages\}\}/i.test(ask);
+    ask=ask.replace(/\{\{memory\}\}/gi,chat.ltm.text||'(пусто)').replace(/\{\{messages\}\}/gi,lines);
+    if(!hasMem)ask+=`\n\nТекущая память:\n${chat.ltm.text||'(пусто)'}`;
+    if(!hasMsg)ask+=`\n\nНовые сообщения:\n${lines}`;
+    const text=await callModel(api,'Ты ведёшь долгосрочную память ролевой переписки. Выводи только текст памяти.',[{role:'user',text:ask}]);
     chat.ltm.text=text.trim();chat.ltm.upTo=fresh[fresh.length-1].ts;
-    save('chats');chatChanged(chatId);
+    save('chats');
     if(force)toast('Память обновлена');
   }catch(e){if(force)toast('Не удалось обновить память: '+e.message,5000);}
-  finally{summarizing.delete(chatId);}
+  finally{summarizing.delete(chatId);chatChanged(chatId);}
 }
 
 /* =====================================================
@@ -1036,10 +1355,10 @@ ROOTS.chats=function(el){
 function lastTs(chat){const m=chat.messages[chat.messages.length-1];return m?m.ts:chat.createdAt;}
 function plain(t){return (t||'').replace(/[*_`~>]/g,'');}
 function chatItemHTML(chat){
-  const ch=charById(chat.characterId)||{name:'Удалённый персонаж'};
+  const ch=charById(chat.characterId)||{name:'Удалённый контакт'};
   const msgs=chat.messages.filter(m=>m.role!=='error');const last=msgs[msgs.length-1];
   const unread=chat.messages.filter(m=>m.role==='bot'&&m.ts>(chat.lastOpened||0)).length;
-  let prev=last?(last.role==='user'?'Вы: ':'')+plain(last.text):'Нет сообщений';
+  let prev=last?(last.role==='user'?'Вы: ':'')+msgPreview(last):'Нет сообщений';
   const typing=generating.has(chat.id)&&chatMode(chat)==='chat';
   return `<button class="chatitem" data-chat="${chat.id}">${avatar(charPhoto(ch),ch.name,58)}
     <div class="body"><div class="line1"><span class="name">${esc(ch.name)}<span class="modepill ${chatMode(chat)}">${MODE_NAMES[chatMode(chat)]}</span></span><span class="time">${fmtListTime(lastTs(chat))}</span></div>
@@ -1048,14 +1367,14 @@ function chatItemHTML(chat){
 function newMenu(){
   sheet({actions:[
     {label:'Новый чат',onClick:()=>push(pickCharacterScreen)},
-    {label:'Новый персонаж',onClick:()=>push(el=>characterEditor(el,null,{thenChat:true}))},
+    {label:'Новый контакт',onClick:()=>push(el=>characterEditor(el,null,{thenChat:true}))},
     {label:'Импорт PNG-карточки',onClick:async()=>{const c=await importCard();if(c)push(e=>newChatSetup(e,c.id));}},
   ]});
 }
 function pickCharacterScreen(el){
-  el.innerHTML=topbar('Выберите персонажа',{right:`<button class="link" data-add>Создать</button>`})+
+  el.innerHTML=topbar('Выберите контакт',{right:`<button class="link" data-add>Создать</button>`})+
   `<div class="scroll">${S.characters.length?`<div class="group">${S.characters.map(c=>`<button class="row" data-c="${c.id}">${avatar(charPhoto(c),c.name,40)}<span class="label">${esc(c.name)}</span>${IC.chev}</button>`).join('')}</div>`:
-   `<div class="empty">Персонажей пока нет.<br>Нажмите «Создать».</div>`}</div>`;
+   `<div class="empty">Контактов пока нет.<br>Нажмите «Создать».</div>`}</div>`;
   bindBack(el);
   $('[data-add]',el).onclick=()=>push(e=>characterEditor(e,null,{thenChat:true}));
   $$('[data-c]',el).forEach(b=>b.onclick=()=>push(e=>newChatSetup(e,b.dataset.c)));
@@ -1110,7 +1429,7 @@ function newChatSetup(el,charId){
       const ownText=st.first==='card'?(st.cardText??cardG[st.cardIdx]):st.firstText;
       if((st.first==='custom'||st.first==='card')&&!(ownText||'').trim()){toast('Напишите первое сообщение или выберите другой вариант');return;}
       const chat={id:uid(),characterId:charId,personaId:st.personaId,mode:st.mode,apiId:st.apiId,relation:st.relation.trim(),style:'',tz:null,realism:true,
-        ltm:{enabled:true,every:30,text:'',upTo:0},messages:[],createdAt:Date.now(),lastOpened:Date.now(),botLastSeen:Date.now(),presence:{online:true}};
+        ltm:{enabled:true,auto:true,every:30,text:'',upTo:0},photoFreq:'sometimes',messages:[],createdAt:Date.now(),lastOpened:Date.now(),botLastSeen:Date.now(),presence:{online:true}};
       const p=personaById(st.personaId);
       const mac=s=>s.replace(/\{\{char\}\}/gi,ch.name).replace(/\{\{user\}\}/gi,p?p.name:'').replace(/<BOT>/g,ch.name).replace(/<USER>/g,p?p.name:'');
       let needGen=false;
@@ -1135,12 +1454,137 @@ function openChat(chatId){push(el=>chatScreen(el,chatId));}
 function quoteHTML(chat,m){
   if(!m.replyTo)return '';const q=chat.messages.find(x=>x.id===m.replyTo);if(!q)return '';
   const ch=charById(chat.characterId)||{name:'Персонаж'};const p=personaById(chat.personaId)||personaById(S.settings.activePersonaId);
-  return `<div class="q" data-goto="${q.id}"><b>${esc(q.role==='bot'?ch.name:(p?p.name:'Вы'))}</b><span>${esc(plain(q.text).slice(0,90))}</span></div>`;
+  return `<div class="q" data-goto="${q.id}"><b>${esc(q.role==='bot'?ch.name:(p?p.name:'Вы'))}</b><span>${esc(q.text?plain(q.text).slice(0,90):MEDIA_LABEL[q.type]||'')}</span></div>`;
 }
+function msgPreview(m){return m.type&&m.type!=='text'?(MEDIA_LABEL[m.type]+(m.type==='file'?' '+m.name:'')+(m.text?' · '+plain(m.text):'')):plain(m.text);}
+// содержимое медиа-сообщения
+function mediaInner(m){
+  if(m.type==='photo'){
+    if(m.status==='pending')return `<div class="mph"><span class="spin"></span><span>фото загружается…</span></div>`;
+    if(m.status==='failed')return `<div class="mph failed"><span>⚠️ Фото не получилось</span><small>${esc((m.error||'').slice(0,160))}</small><button data-rephoto="${m.id}">Повторить</button></div>`;
+    return `<img class="mimg" data-media="${m.mediaId}" data-photo="${m.id}" alt="">`;
+  }
+  if(m.type==='video')return `<video class="mvid" data-media="${m.mediaId}" data-vid playsinline preload="metadata" muted></video><span class="vbadge">▶ ${fmtDur(m.duration)}</span>`;
+  if(m.type==='voice'){
+    const bars=(m.wave||[]).map((h,i)=>`<i style="height:${Math.round(4+h*20)}px"></i>`).join('');
+    return `<div class="voice" data-voice="${m.mediaId}"><button class="vplay">▶</button><div class="wave">${bars}</div><span class="vdur">${fmtDur(m.duration)}</span></div>`;
+  }
+  if(m.type==='file')return `<div class="fileb" data-file="${m.id}"><div class="ficon">${(m.name||'').split('.').pop().slice(0,4).toUpperCase()||'FILE'}</div><div class="finfo"><b>${esc(m.name||'файл')}</b><small>${fmtSize(m.size||0)}</small></div></div>`;
+  return '';
+}
+let playingAudio=null;
+function playVoice(el,url){
+  const a=el._audio||(el._audio=new Audio(url));
+  const btn=$('.vplay',el);const bars=$$('.wave i',el);
+  if(playingAudio&&playingAudio!==a){playingAudio.pause();}
+  if(a.paused){a.play();playingAudio=a;btn.textContent='❚❚';}else{a.pause();btn.textContent='▶';}
+  a.ontimeupdate=()=>{const p=a.duration?a.currentTime/a.duration:0;bars.forEach((b,i)=>b.classList.toggle('on',i/bars.length<p));};
+  a.onended=()=>{btn.textContent='▶';bars.forEach(b=>b.classList.remove('on'));};
+  a.onpause=()=>{btn.textContent='▶';};
+}
+function videoViewer(url){
+  const v=document.createElement('div');v.className='viewer';
+  v.innerHTML=`<video src="${url}" controls autoplay playsinline style="max-width:100%;max-height:100%"></video><div class="vtop"><button class="glass" data-vx>Закрыть</button></div>`;
+  const close=()=>{v.classList.remove('show');setTimeout(()=>v.remove(),200);};
+  $('[data-vx]',v).onclick=close;app.appendChild(v);requestAnimationFrame(()=>v.classList.add('show'));
+}
+async function openPhoto(chat,msgId){
+  const list=chat.messages.filter(m=>m.type==='photo'&&m.mediaId&&m.status!=='pending'&&m.status!=='failed');
+  const urls=await Promise.all(list.map(m=>mediaUrl(m.mediaId)));
+  viewer(urls.filter(Boolean),Math.max(0,list.findIndex(m=>m.id===msgId)));
+}
+async function saveMedia(m){
+  const url=await mediaUrl(m.mediaId);if(!url)return;
+  const blob=await DB.getMedia(m.mediaId);
+  const ext=(blob.type.split('/')[1]||'bin').split(';')[0];
+  const file=new File([blob],m.name||('veya-'+m.id+'.'+ext),{type:blob.type});
+  try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file]});return;}}catch(e){if(e.name==='AbortError')return;}
+  const a=document.createElement('a');a.href=url;a.download=file.name;document.body.appendChild(a);a.click();a.remove();
+}
+function hydrateMedia(root,chat){
+  $$('[data-media]',root).forEach(async n=>{const url=await mediaUrl(n.dataset.media);if(!url)return;
+    if(n.tagName==='VIDEO')n.src=url+'#t=0.1';else n.src=url;});
+  $$('[data-photo]',root).forEach(n=>n.onclick=e=>{e.stopPropagation();openPhoto(chat,n.dataset.photo);});
+  $$('[data-vid]',root).forEach(n=>n.parentElement.onclick=async e=>{e.stopPropagation();videoViewer(await mediaUrl(n.dataset.media));});
+  $$('[data-voice]',root).forEach(n=>{$('.vplay',n).onclick=async e=>{e.stopPropagation();playVoice(n,await mediaUrl(n.dataset.voice));};});
+  $$('[data-file]',root).forEach(n=>n.onclick=e=>{e.stopPropagation();const m=chat.messages.find(x=>x.id===n.dataset.file);if(m)saveMedia(m);});
+  $$('[data-rephoto]',root).forEach(n=>n.onclick=e=>{e.stopPropagation();const m=chat.messages.find(x=>x.id===n.dataset.rephoto);if(!m)return;
+    const ctrl=new AbortController();busyLabel[chat.id]='отправляет фото…';makeBotPhoto(chat.id,m,ctrl.signal).then(()=>{delete busyLabel[chat.id];chatChanged(chat.id);});});
+  $$('.circle',root).forEach(c=>{const v=$('video',c);c.onclick=()=>{
+    if(v.paused){$$('.circle video').forEach(o=>{if(o!==v&&!o.paused)o.pause();});v.muted=false;v.currentTime=v.currentTime<0.2?0:v.currentTime;v.play();c.classList.add('playing');}
+    else{v.pause();c.classList.remove('playing');}};
+    v.onended=()=>{c.classList.remove('playing');v.currentTime=0;};});
+}
+
+/* ---------- запись голосовых и кружочков ---------- */
+let recorder=null;
+function pickMime(kind){
+  const opts=kind==='audio'?['audio/mp4','audio/webm;codecs=opus','audio/webm']:['video/mp4','video/webm;codecs=vp8,opus','video/webm'];
+  return opts.find(t=>window.MediaRecorder&&MediaRecorder.isTypeSupported(t))||'';
+}
+async function startRecording(chatId,type,ui){
+  if(!window.MediaRecorder||!navigator.mediaDevices){toast('Запись не поддерживается в этом браузере');return;}
+  let stream;
+  const constraints=type==='voice'?{audio:true}:{audio:true,video:{facingMode:ui.facing||'user',width:{ideal:480},height:{ideal:480}}};
+  try{stream=await navigator.mediaDevices.getUserMedia(constraints);}
+  catch(e){toast('Нет доступа к '+(type==='voice'?'микрофону':'камере')+'. Разрешите его в настройках iPhone → Safari.',5000);return;}
+  const mime=pickMime(type==='voice'?'audio':'video');
+  const mr=new MediaRecorder(stream,Object.assign(mime?{mimeType:mime}:{},type==='circle'?{videoBitsPerSecond:900000,audioBitsPerSecond:64000}:{audioBitsPerSecond:64000}));
+  const chunks=[];mr.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data);};
+  const rec={chatId,type,mr,stream,chunks,start:Date.now(),mime:mr.mimeType||mime,ui};
+  recorder=rec;
+  mr.start(250);
+  rec.timer=setInterval(()=>{const s=(Date.now()-rec.start)/1000;ui.tick(s);if(s>=(type==='circle'?60:300))finishRecording(true);},200);
+  ui.started(stream);
+}
+async function finishRecording(send){
+  const rec=recorder;if(!rec)return;recorder=null;
+  clearInterval(rec.timer);
+  const stopped=new Promise(r=>rec.mr.onstop=r);
+  try{rec.mr.stop();}catch{}
+  await stopped;rec.stream.getTracks().forEach(t=>t.stop());
+  rec.ui.ended();
+  if(!send)return;
+  const dur=(Date.now()-rec.start)/1000;
+  if(dur<0.8){toast('Слишком коротко');return;}
+  const blob=new Blob(rec.chunks,{type:(rec.mime||'').split(';')[0]||(rec.type==='voice'?'audio/mp4':'video/mp4')});
+  const chat=chatById(rec.chatId);if(!chat)return;
+  const mediaId=await storeMedia(blob);
+  const msg={id:uid(),role:'user',type:rec.type,mediaId,mime:blob.type,ts:Date.now(),status:'sent',text:'',duration:dur};
+  if(rec.type==='voice'){const info=await audioInfo(blob);msg.wave=info.wave;if(info.duration)msg.duration=info.duration;}
+  sendUserMessage(chat,msg);
+}
+function sendUserMessage(chat,msg){
+  chat.messages=chat.messages.filter(m=>m.role!=='error');
+  chat.swipe=null;
+  chat.messages.push(msg);
+  save('chats');chatChanged(chat.id);
+  if(!generating.has(chat.id))scheduleReply(chat.id);
+}
+function circleOverlay(chatId){
+  const o=document.createElement('div');o.className='circrec';
+  o.innerHTML=`<div class="cr-circle"><video autoplay playsinline muted></video></div>
+    <div class="cr-tools"><button class="glass" data-flip>⟲</button></div>
+    <div class="cr-bottom glass"><span class="dot"></span><span class="rt">0:00</span><button data-cancel>Отмена</button></div>
+    <button class="cr-send" data-send>${IC.send}</button>`;
+  app.appendChild(o);requestAnimationFrame(()=>o.classList.add('show'));
+  const v=$('video',o);let facing='user';
+  const ui={facing,tick:s=>$('.rt',o).textContent=fmtDur(s),started:st=>{v.srcObject=st;v.style.transform=facing==='user'?'scaleX(-1)':'';},
+    ended:()=>{v.srcObject=null;}};
+  const close=()=>{o.classList.remove('show');setTimeout(()=>o.remove(),250);};
+  $('[data-cancel]',o).onclick=async()=>{await finishRecording(false);close();};
+  $('[data-send]',o).onclick=async()=>{close();await finishRecording(true);};
+  $('[data-flip]',o).onclick=async()=>{await finishRecording(false);facing=facing==='user'?'environment':'user';ui.facing=facing;startRecording(chatId,'circle',ui);toast('Камера переключена — запись началась заново',2000);};
+  ui.endedClose=close;
+  startRecording(chatId,'circle',ui).then(()=>{if(!recorder)close();});
+}
+
 function chatScreen(el,chatId){
   const chat=chatById(chatId);if(!chat){el.innerHTML='';return;}
   el.chatId=chatId;el.classList.add('chat');
   let replyTo=null;
+  const med=S.settings.media;
+  let recMode=med.voice?'voice':'circle';
   el.innerHTML=`<div class="wall"></div>
    <div class="chathead">
      <button class="hback glass" data-back>${IC.back}</button>
@@ -1148,17 +1592,22 @@ function chatScreen(el,chatId){
      <button class="havatar" data-prof></button>
    </div>
    <div class="msgs"></div>
+   <div class="stoppill"><button class="glass" data-stop>■ Остановить</button></div>
    <div class="replybar glass" style="display:none"><div class="rb-body"><b></b><span></span></div><button data-rbx>×</button></div>
    <div class="composer">
      <button class="cbtn glass" data-attach>${IC.clip}</button>
      <div class="inputwrap glass"><textarea rows="1" placeholder="Сообщение"></textarea></div>
      <button class="cbtn glass" data-act>${IC.mic}</button>
-   </div>`;
+   </div>
+   <div class="recbar" style="display:none"><div class="glass rb-in"><span class="dot"></span><span class="rt">0:00</span><button data-rcancel>Отмена</button></div><button class="cbtn send" data-rsend>${IC.send}</button></div>`;
   bindBack(el);
   $$('[data-prof]',el).forEach(b=>b.onclick=()=>push(e=>botProfile(e,chatId)));
-  const ta=$('textarea',el),act=$('[data-act]',el),msgsEl=$('.msgs',el),rb=$('.replybar',el);
-  $('[data-attach]',el).onclick=()=>toast('Фото и файлы появятся на этапе 3');
-  const syncBtn=()=>{const has=ta.value.trim().length>0;act.innerHTML=has?IC.send:IC.mic;act.classList.toggle('send',has);act.classList.toggle('glass',!has);};
+  const ta=$('textarea',el),act=$('[data-act]',el),msgsEl=$('.msgs',el),rb=$('.replybar',el),comp=$('.composer',el),recbar=$('.recbar',el);
+  const canRec=()=>med.voice||med.video;
+  const syncBtn=()=>{const has=ta.value.trim().length>0;
+    act.innerHTML=has?IC.send:(recMode==='voice'?IC.mic:IC.cam);
+    act.classList.toggle('send',has);act.classList.toggle('glass',!has);
+    act.style.visibility=has||canRec()?'':'hidden';};
   const grow=()=>{ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,140)+'px';};
   composers[chatId]=ta;
   ta.oninput=()=>{grow();syncBtn();if(replyTimers[chatId])scheduleReply(chatId);};
@@ -1166,26 +1615,87 @@ function chatScreen(el,chatId){
   ta.onblur=()=>{if(replyTimers[chatId])scheduleReply(chatId);};
   const setReply=(m)=>{replyTo=m?m.id:null;rb.style.display=m?'':'none';
     if(m){const ch=charById(chat.characterId)||{name:''};const p=personaById(chat.personaId);
-      $('b',rb).textContent='Ответ '+(m.role==='bot'?ch.name:(p?p.name:'себе'));$('span',rb).textContent=plain(m.text).slice(0,80);ta.focus();}};
+      $('b',rb).textContent='Ответ '+(m.role==='bot'?ch.name:(p?p.name:'себе'));$('span',rb).textContent=msgPreview(m).slice(0,80);ta.focus();}};
   $('[data-rbx]',rb).onclick=()=>setReply(null);
-  act.onclick=()=>{
-    const text=ta.value.trim();
-    if(!text){toast('Голосовые и кружочки появятся на этапе 3');return;}
-    chat.messages=chat.messages.filter(m=>m.role!=='error');
-    chat.swipe=null; // варианты прошлого ответа закрепляются
-    chat.messages.push({id:uid(),role:'user',text,ts:Date.now(),status:'sent',replyTo});
-    setReply(null);
-    save('chats');ta.value='';grow();syncBtn();ta.focus();
-    renderMsgs(true);
-    if(!generating.has(chatId))scheduleReply(chatId);
+  $('[data-stop]',el).onclick=()=>{stopGeneration(chatId);toast('Ответ остановлен');};
+
+  // вложения
+  $('[data-attach]',el).onclick=()=>{
+    const acts=[];
+    if(med.photo||med.video)acts.push({label:med.photo&&med.video?'Фото или видео':med.photo?'Фото':'Видео',onClick:()=>attachGallery()});
+    acts.push({label:'Файл (txt, docx, pdf, json…)',onClick:()=>attachFile()});
+    sheet({actions:acts});
   };
+  async function attachGallery(){
+    const accept=[med.photo&&'image/*',med.video&&'video/*'].filter(Boolean).join(',');
+    const files=await pickFiles(accept,true);if(!files.length)return;
+    let caption=ta.value.trim();
+    for(const f of files){
+      try{
+        let msg;
+        if(f.type.startsWith('image/')){
+          const blob=dataUrlToBlob(await resizeImage(f,1600));
+          msg={id:uid(),role:'user',type:'photo',mediaId:await storeMedia(blob),mime:blob.type,status:'sent'};
+        }else{
+          if(f.size>50*1048576){toast('Видео больше 50 МБ — слишком тяжёлое',4000);continue;}
+          const info=await videoInfo(f);
+          msg={id:uid(),role:'user',type:'video',mediaId:await storeMedia(f),mime:f.type,duration:info.duration,status:'sent'};
+          if(f.size>15*1048576)toast('Большое видео: модель может его не принять. Лучше до 15 МБ.',4500);
+        }
+        msg.ts=Date.now();msg.text=caption;caption='';msg.replyTo=replyTo;
+        sendUserMessage(chat,msg);
+      }catch(e){toast('Не удалось добавить: '+e.message,4000);}
+    }
+    ta.value='';grow();syncBtn();setReply(null);renderMsgs(true);
+  }
+  async function attachFile(){
+    const [f]=await pickFiles('.txt,.md,.json,.csv,.pdf,.docx,.log,.xml,.html,text/*,application/json,application/pdf');if(!f)return;
+    try{
+      let fileText=null;
+      try{fileText=await readFileText(f);}catch(e){toast('Текст из файла не прочитался: '+e.message,4000);}
+      const msg={id:uid(),role:'user',type:'file',mediaId:await storeMedia(f),mime:f.type||'application/octet-stream',name:f.name,size:f.size,fileText,ts:Date.now(),status:'sent',text:ta.value.trim(),replyTo};
+      ta.value='';grow();syncBtn();setReply(null);
+      sendUserMessage(chat,msg);renderMsgs(true);
+    }catch(e){toast('Не удалось добавить файл: '+e.message,4000);}
+  }
+
+  // кнопка справа: отправить / тап — переключить голосовое↔кружок / удержать — записать
+  let holdT=null,held=false,hintShown=false;
+  act.addEventListener('pointerdown',e=>{
+    if(ta.value.trim()||!canRec())return;
+    held=false;holdT=setTimeout(()=>{held=true;if(navigator.vibrate)navigator.vibrate(15);beginRecord();},320);
+  });
+  const cancelHold=()=>{clearTimeout(holdT);holdT=null;};
+  act.addEventListener('pointerleave',cancelHold);act.addEventListener('pointercancel',cancelHold);
+  act.addEventListener('pointerup',()=>{
+    if(ta.value.trim())return;
+    if(holdT){cancelHold();
+      if(med.voice&&med.video){recMode=recMode==='voice'?'circle':'voice';syncBtn();}
+      if(!hintShown){hintShown=true;toast('Удерживайте кнопку, чтобы записать '+(recMode==='voice'?'голосовое':'кружочек')+'. Короткое нажатие — переключить.',3500);}
+    }
+  });
+  act.onclick=()=>{
+    const text=ta.value.trim();if(!text)return;
+    sendUserMessage(chat,{id:uid(),role:'user',text,ts:Date.now(),status:'sent',replyTo});
+    setReply(null);ta.value='';grow();syncBtn();ta.focus();renderMsgs(true);
+  };
+  function beginRecord(){
+    if(isEditing())document.activeElement.blur();
+    if(recMode==='circle'){circleOverlay(chatId);return;}
+    const ui={tick:s=>$('.rt',recbar).textContent=fmtDur(s),started:()=>{comp.style.display='none';recbar.style.display='';},
+      ended:()=>{comp.style.display='';recbar.style.display='none';$('.rt',recbar).textContent='0:00';}};
+    startRecording(chatId,'voice',ui);
+  }
+  $('[data-rcancel]',recbar).onclick=()=>finishRecording(false);
+  $('[data-rsend]',recbar).onclick=()=>finishRecording(true);
+
   const scrollBottom=()=>{msgsEl.scrollTop=msgsEl.scrollHeight;};
   const onResize=()=>{if(msgsEl.scrollHeight-msgsEl.scrollTop-msgsEl.clientHeight<200)scrollBottom();};
   document.addEventListener('veya:resize',onResize);
-  el.onLeave=()=>{document.removeEventListener('veya:resize',onResize);if(composers[chatId]===ta)delete composers[chatId];};
+  el.onLeave=()=>{document.removeEventListener('veya:resize',onResize);if(composers[chatId]===ta)delete composers[chatId];if(recorder&&recorder.chatId===chatId)finishRecording(false);if(playingAudio)playingAudio.pause();};
 
   function renderHead(){
-    const ch=charById(chat.characterId)||{name:'Удалённый персонаж'};
+    const ch=charById(chat.characterId)||{name:'Удалённый контакт'};
     $('.hname',el).textContent=ch.name;
     const typing=generating.has(chatId);
     const rp=chatMode(chat)==='rp';
@@ -1193,9 +1703,10 @@ function chatScreen(el,chatId){
     const st=$('.hstatus',el);
     st.style.display=rp?'none':'';
     const on=typing||isOnline(chat);
-    st.textContent=typing?'печатает…':on?'в сети':lastSeenText(chat.botLastSeen);
+    st.textContent=typing?(busyLabel[chatId]||'печатает…'):on?'в сети':lastSeenText(chat.botLastSeen);
     st.classList.toggle('on',on);
     $('.havatar',el).innerHTML=avatar(charPhoto(ch),ch.name,46);
+    $('.stoppill',el).classList.toggle('show',typing);
   }
   function swipeHTML(){
     const info=swipeInfo(chat);if(!info||generating.has(chatId))return '';
@@ -1209,7 +1720,8 @@ function chatScreen(el,chatId){
       const ch=charById(chat.characterId)||{name:'Персонаж'};const pr=personaById(chat.personaId)||personaById(S.settings.activePersonaId);
       list.forEach(m=>{
         if(m.role==='error'){html+=`<div class="errrow" data-retry>⚠️ ${esc(m.text)}<b>Нажмите, чтобы повторить</b></div>`;return;}
-        html+=`<div class="rpcard ${m.role}" data-m="${m.id}"><div class="who">${esc(m.role==='user'?(pr?pr.name:'Вы'):ch.name)}</div><div class="md">${md(m.text)}</div>${info&&info.lastId===m.id?swipeHTML():''}</div>`;
+        const media=m.type&&m.type!=='text'?(m.type==='circle'?`<div class="circle inrp"><video data-media="${m.mediaId}" playsinline preload="metadata"></video><span class="cdur">${fmtDur(m.duration)}</span></div>`:`<div class="rpmedia">${mediaInner(m)}</div>`):'';
+        html+=`<div class="rpcard ${m.role}" data-m="${m.id}"><div class="who">${esc(m.role==='user'?(pr?pr.name:'Вы'):ch.name)}</div>${media}${m.text?`<div class="md">${md(m.text)}</div>`:''}${info&&info.lastId===m.id?swipeHTML():''}</div>`;
       });
       if(generating.has(chatId))html+='<div class="typingdots"><i></i><i></i><i></i></div>';
     }else{
@@ -1220,12 +1732,22 @@ function chatScreen(el,chatId){
         const gap=!prev||prev.role!==m.role||dayKey(prev.ts)!==dk;
         const tail=!next||next.role!==m.role||dayKey(next.ts)!==dk||next.ts-m.ts>5*6e4;
         const ticks=m.role==='user'?(m.status==='read'?IC.tick2:IC.tick1):'';
-        html+=`<div class="mrow ${m.role} ${tail?'tail':''} ${gap?'gap':''}"><div class="bubble" data-m="${m.id}">${quoteHTML(chat,m)}<span class="md">${md(m.text)}</span><span class="sp ${m.edited?'edited-sp':''}"></span><span class="meta">${m.edited?'изменено ':''}${fmtTime(m.ts)}${ticks}</span></div></div>`;
+        const meta=`<span class="meta">${m.edited?'изменено ':''}${fmtTime(m.ts)}${ticks}</span>`;
+        if(m.type==='circle'){
+          html+=`<div class="mrow ${m.role} ${gap?'gap':''}"><div class="circle" data-m="${m.id}"><video data-media="${m.mediaId}" playsinline preload="metadata"></video><span class="cdur">${fmtDur(m.duration)}</span>${meta}</div></div>`;
+        }else if(m.type&&m.type!=='text'){
+          const visual=m.type==='photo'||m.type==='video';
+          html+=`<div class="mrow ${m.role} ${tail?'tail':''} ${gap?'gap':''}"><div class="bubble media ${visual?'visual':''} ${visual&&!m.text?'nocap':''}" data-m="${m.id}">${quoteHTML(chat,m)}${mediaInner(m)}${m.text?`<div class="cap"><span class="md">${md(m.text)}</span><span class="sp"></span></div>`:(visual?'':'<span class="sp"></span>')}${meta}</div></div>`;
+        }else{
+          html+=`<div class="mrow ${m.role} ${tail?'tail':''} ${gap?'gap':''}"><div class="bubble" data-m="${m.id}">${quoteHTML(chat,m)}<span class="md">${md(m.text)}</span><span class="sp ${m.edited?'edited-sp':''}"></span>${meta}</div></div>`;
+        }
         if(info&&info.lastId===m.id)html+=swipeHTML();
       });
     }
     msgsEl.innerHTML=html;
     if(forceBottom||nearBottom)scrollBottom();
+    $$('img,video',msgsEl).forEach(n=>n.addEventListener(n.tagName==='IMG'?'load':'loadedmetadata',()=>{if(forceBottom||nearBottom)scrollBottom();},{once:true}));
+    hydrateMedia(msgsEl,chat);
     $$('[data-retry]',msgsEl).forEach(b=>b.onclick=()=>{chat.messages=chat.messages.filter(m=>m.role!=='error');save('chats');
       const last=chat.messages[chat.messages.length-1];generate(chatId,{first:!last});});
     $$('[data-sw]',msgsEl).forEach(b=>b.onclick=e=>{e.stopPropagation();swipeTo(chatId,+b.dataset.sw);});
@@ -1238,12 +1760,13 @@ function chatScreen(el,chatId){
     if(isEditing()){document.activeElement.blur();setTimeout(()=>msgMenu(mid),380);}else msgMenu(mid);
   }
   function bindLongPress(){
-    $$('.bubble,.rpcard',msgsEl).forEach(b=>{
+    $$('.bubble,.rpcard,.circle[data-m]',msgsEl).forEach(b=>{
       let t=null,sx=0,sy=0;
-      b.addEventListener('touchstart',e=>{if(e.target.closest('[data-sw],[data-goto]'))return;sx=e.touches[0].clientX;sy=e.touches[0].clientY;b.classList.add('pressed');t=setTimeout(()=>{t=null;b.classList.remove('pressed');openMenu(b.dataset.m);},450);},{passive:true});
+      b.addEventListener('touchstart',e=>{if(e.target.closest('[data-sw],[data-goto],.vplay,[data-rephoto]'))return;sx=e.touches[0].clientX;sy=e.touches[0].clientY;b.classList.add('pressed');t=setTimeout(()=>{t=null;b.classList.remove('pressed');b._lp=Date.now();openMenu(b.dataset.m);},450);},{passive:true});
       const cancel=()=>{clearTimeout(t);t=null;b.classList.remove('pressed');};
       b.addEventListener('touchmove',e=>{const x=e.touches[0];if(Math.abs(x.clientX-sx)>8||Math.abs(x.clientY-sy)>8)cancel();},{passive:true});
       b.addEventListener('touchend',cancel);b.addEventListener('touchcancel',cancel);
+      b.addEventListener('click',e=>{if(b._lp&&Date.now()-b._lp<700){e.stopPropagation();e.preventDefault();}},true);
       b.addEventListener('contextmenu',e=>{e.preventDefault();openMenu(b.dataset.m);});
     });
   }
@@ -1252,12 +1775,15 @@ function chatScreen(el,chatId){
     const i=chat.messages.indexOf(m);
     const inLastBatch=m.role==='bot'&&chat.messages.slice(i+1).every(x=>x.role!=='user');
     const firstOfBatch=inLastBatch&&(i===0||chat.messages[i-1].role!=='bot');
+    const isMedia=m.type&&m.type!=='text';
     const acts=[];
     if(chatMode(chat)==='chat')acts.push({label:'Ответить',onClick:()=>setReply(m)});
-    acts.push({label:'Копировать',onClick:()=>{navigator.clipboard&&navigator.clipboard.writeText(m.text).then(()=>toast('Скопировано'));}});
-    acts.push({label:'Изменить',onClick:async()=>{const v=await editText('Изменить сообщение',m.text);if(v===null||!v.trim())return;m.text=v.trim();m.edited=true;save('chats');renderMsgs();}});
+    if(m.text)acts.push({label:'Копировать',onClick:()=>{navigator.clipboard&&navigator.clipboard.writeText(m.text).then(()=>toast('Скопировано'));}});
+    if(!isMedia||m.text||m.type==='photo'||m.type==='video'||m.type==='file')acts.push({label:isMedia?'Изменить подпись':'Изменить',onClick:async()=>{const v=await editText(isMedia?'Подпись':'Изменить сообщение',m.text||'');if(v===null)return;if(!isMedia&&!v.trim())return;m.text=v.trim();m.edited=true;save('chats');renderMsgs();}});
+    if(m.mediaId)acts.push({label:'Сохранить на телефон',onClick:()=>saveMedia(m)});
+    if(m.desc)acts.push({label:'Что увидела/услышала модель',onClick:async()=>{const v=await editText('Расшифровка для модели',m.desc);if(v!==null){m.desc=v.trim()||undefined;save('chats');}}});
     if(inLastBatch&&!generating.has(chatId))acts.push({label:firstOfBatch?'Перегенерировать ответ':'Перегенерировать с этого сообщения',onClick:()=>regenerateFrom(chatId,mid)});
-    acts.push({label:'Удалить',danger:true,onClick:()=>{chat.messages=chat.messages.filter(x=>x.id!==mid);save('chats');renderMsgs();}});
+    acts.push({label:'Удалить',danger:true,onClick:()=>{chat.messages=chat.messages.filter(x=>x.id!==mid);deleteMediaOf([m]);save('chats');renderMsgs();}});
     sheet({actions:acts});
   }
   el.refresh=()=>{chat.lastOpened=Date.now();renderHead();renderMsgs();};
@@ -1265,7 +1791,6 @@ function chatScreen(el,chatId){
   onChatOpened(chat);
   renderHead();renderMsgs(true);syncBtn();
   const last=chat.messages[chat.messages.length-1];
-  // прочитанное, но без ответа = бот проигнорировал; ждём, пока юзер напишет ещё
   if(last&&last.role==='user'&&last.status!=='read'&&!generating.has(chatId)&&!replyTimers[chatId])scheduleReply(chatId);
   const iv=setInterval(()=>{if(!el.isConnected){clearInterval(iv);return;}presenceTick(chat);renderHead();},60000);
 }
@@ -1283,8 +1808,18 @@ function botProfile(el,chatId){
     const persona=personaById(chat.personaId);
     const rp=chatMode(chat)==='rp';
     const typing=generating.has(chatId);const on=typing||isOnline(chat);
-    const status=rp?'':typing?'печатает…':on?'в сети':lastSeenText(chat.botLastSeen);
-    const ltm=chat.ltm||{enabled:true,every:30,text:''};
+    const status=rp?'':typing?(busyLabel[chatId]||'печатает…'):on?'в сети':lastSeenText(chat.botLastSeen);
+    const ltm=chat.ltm||(chat.ltm={enabled:true,auto:true,every:30,text:'',upTo:0});
+    const auto=ltm.auto!==false;
+    const mediaMsgs=chat.messages.filter(m=>(m.type==='photo'&&m.status!=='pending'&&m.status!=='failed'||m.type==='video')&&m.mediaId).reverse();
+    const fileMsgs=chat.messages.filter(m=>['voice','circle','file'].includes(m.type)).reverse();
+    let pane='';
+    if(tab==='media')pane=mediaMsgs.length?`<div class="mgrid">${mediaMsgs.map(m=>m.type==='photo'?`<img data-media="${m.mediaId}" data-photo="${m.id}">`:`<div class="mgv"><video data-media="${m.mediaId}" data-vid playsinline preload="metadata" muted></video><span>▶ ${fmtDur(m.duration)}</span></div>`).join('')}</div>`:'<div class="tabpane">Фото и видео из чата появятся здесь</div>';
+    else if(tab==='files')pane=fileMsgs.length?`<div class="group">${fileMsgs.map(m=>m.type==='file'
+        ?`<button class="row" data-file="${m.id}"><span class="ficon sm">${(m.name||'').split('.').pop().slice(0,4).toUpperCase()}</span><span class="label" style="font-size:15px">${esc(m.name)}<br><small style="color:var(--text2)">${fmtSize(m.size||0)} · ${fmtDay(m.ts)}</small></span></button>`
+        :m.type==='voice'?`<div class="row"><div class="voice" data-voice="${m.mediaId}" style="flex:1"><button class="vplay">▶</button><div class="wave">${(m.wave||[]).map(h=>`<i style="height:${Math.round(4+h*16)}px"></i>`).join('')}</div><span class="vdur">${fmtDur(m.duration)}</span></div><small style="color:var(--text2)">${m.role==='user'?'вы':esc(ch.name)} · ${fmtDay(m.ts)}</small></div>`
+        :`<button class="row" data-circ="${m.mediaId}"><span class="ficon sm round">⭕</span><span class="label" style="font-size:15px">Кружочек · ${fmtDur(m.duration)}<br><small style="color:var(--text2)">${fmtDay(m.ts)}, ${fmtTime(m.ts)}</small></span></button>`).join('')}</div>`:'<div class="tabpane">Голосовые, кружочки и файлы из чата появятся здесь</div>';
+    else pane='<div class="tabpane">Лорбуки появятся на этапе 4</div>';
     el.innerHTML=`<div class="scroll" style="padding-bottom:30px">
       <div class="phero">
         ${photos.length?`<img src="${photos[idx].src}">`:`<div class="noimg">${esc((ch.name||'?').charAt(0).toUpperCase())}</div>`}
@@ -1301,7 +1836,7 @@ function botProfile(el,chatId){
       </div>
       <div class="card"><div class="k">описание</div><div class="v ${expanded?'':'clamp'}">${esc(ch.personality||'Описание не заполнено')}</div>
         ${(ch.personality||'').length>280?`<button class="more" data-exp>${expanded?'свернуть':'ещё'}</button>`:''}</div>
-      <div class="group-foot">Персонажа можно изменить во вкладке «Персонажи».</div>
+      <div class="group-foot">Контакт можно изменить во вкладке «Контакты».</div>
 
       <div class="group-title">Настройки этого чата</div>
       <div class="group">
@@ -1309,53 +1844,58 @@ function botProfile(el,chatId){
         <button class="row" data-capi><span class="label">Модель</span><span class="value">${esc(apiOptionLabel(chat.apiId))}</span>${IC.chev}</button>
         <button class="row" data-ed="relation"><span class="label">${rp?'Сценарий':'Кто вы друг другу'}</span><span class="value">${esc(chat.relation?plain(chat.relation).slice(0,30):'не указано')}</span>${IC.chev}</button>
         <button class="row" data-ed="style"><span class="label">Стиль письма</span><span class="value">${esc(chat.style?plain(chat.style).slice(0,30):'по характеру')}</span>${IC.chev}</button>
-        ${rp?'':`<div class="row"><span class="label">Часовой пояс</span><div class="selectwrap" style="max-width:55%"><select data-tz style="background:transparent;border:0;color:var(--text2);text-align:right;padding-right:16px;max-width:100%">
+        ${rp?'':`<button class="row" data-pf><span class="label">Фото от бота</span><span class="value">${PHOTO_FREQ[chat.photoFreq||'sometimes']}</span>${IC.chev}</button>
+        <div class="row"><span class="label">Часовой пояс</span><div class="selectwrap" style="max-width:55%"><select data-tz style="background:transparent;border:0;color:var(--text2);text-align:right;padding-right:16px;max-width:100%">
           <option value="">Как на телефоне</option>${TZ_LIST.map(z=>`<option ${chat.tz===z?'selected':''}>${z}</option>`).join('')}</select></div></div>
         <button class="row" data-real><span class="label">Живое поведение</span><span class="toggle ${chat.realism!==false?'on':''}"></span></button>`}
         <div class="row"><span class="label">Вы пишете как</span><span class="value">${esc(persona?persona.name:'—')}</span></div>
       </div>
-      ${rp?'<div class="group-foot">Формат чата нельзя изменить после начала.</div>':
-        '<div class="group-foot">Формат чата нельзя изменить после начала. «Живое поведение»: бот бывает не в сети, читает не сразу, иногда заходит и ничего не пишет, может проигнорировать.</div>'}
+      <div class="group-foot">Формат чата нельзя изменить после начала.${rp?'':' «Живое поведение»: бот бывает не в сети, читает не сразу, иногда заходит и ничего не пишет, может проигнорировать.'}</div>
 
       <div class="group-title">Долгая память</div>
       <div class="group">
-        <button class="row" data-ltm><span class="label">Включена</span><span class="toggle ${ltm.enabled?'on':''}"></span></button>
-        <div class="row"><span class="label">Обновлять каждые</span><input data-every type="number" inputmode="numeric" min="5" max="500" value="${ltm.every||30}" class="numbox"><span class="value" style="margin-left:6px">сообщ.</span></div>
-        <button class="row" data-ed="ltm"><span class="label">Что бот помнит</span><span class="value">${ltm.text?'смотреть':'пока пусто'}</span>${IC.chev}</button>
+        <button class="row" data-ltm><span class="label">Использовать</span><span class="toggle ${ltm.enabled?'on':''}"></span></button>
+        <button class="row" data-auto><span class="label">Автообновление</span><span class="toggle ${auto?'on':''}"></span></button>
+        ${auto?`<div class="row"><span class="label">Каждые</span><input data-every type="number" inputmode="numeric" min="5" max="500" value="${ltm.every||30}" class="numbox"><span class="value" style="margin-left:6px">сообщ.</span></div>`:''}
+        <button class="row" data-ed="ltm"><span class="label">Что бот помнит</span><span class="value">${ltm.text?'открыть':'пока пусто'}</span>${IC.chev}</button>
         <button class="row" data-ltmnow><span class="label" style="color:var(--accent)">${summarizing.has(chatId)?'Обновляю…':'Обновить память сейчас'}</span></button>
       </div>
-      <div class="group-foot">Бот сам делает краткую выжимку важного из переписки и помнит её, даже когда старые сообщения уже не влезают в память. Выжимку можно поправить вручную.</div>
+      <div class="group-foot">${auto?'Бот сам переписывает выжимку важного из переписки.':'Автообновление выключено: память меняется только вручную — впишите её сами или нажмите «Обновить сейчас».'} Промпт и модель для памяти — в общих Настройках.</div>
 
       <div class="tabs"><button data-t="media" class="${tab==='media'?'on':''}">Медиа</button><button data-t="files" class="${tab==='files'?'on':''}">Файлы</button><button data-t="lore" class="${tab==='lore'?'on':''}">Лорбуки</button></div>
-      <div class="tabpane">${tab==='lore'?'Лорбуки появятся на этапе 4':'Здесь будут '+(tab==='media'?'фото из чата':'голосовые, кружочки и файлы')+' — этап 3'}</div>
+      ${pane}
     </div>`;
     bindBack(el);
+    hydrateMedia(el,chat);
+    $$('[data-circ]',el).forEach(b=>b.onclick=async()=>videoViewer(await mediaUrl(b.dataset.circ)));
     const tl=$('.tapl',el),tr=$('.tapr',el);
     if(tl)tl.onclick=()=>{idx=(idx-1+photos.length)%photos.length;draw();};
     if(tr)tr.onclick=()=>{idx=(idx+1)%photos.length;draw();};
     $('.tapc',el).onclick=()=>viewer(photos.map(p=>p.src),idx);
     const ex=$('[data-exp]',el);if(ex)ex.onclick=()=>{expanded=!expanded;draw();};
     $('[data-capi]',el).onclick=async()=>{const r=await pickApiSheet(chat.apiId);if(r){chat.apiId=r.id;save('chats');draw();}};
+    const pf=$('[data-pf]',el);if(pf)pf.onclick=()=>sheet({title:'Как часто бот присылает свои фото',actions:Object.entries(PHOTO_FREQ).map(([k,l])=>({label:((chat.photoFreq||'sometimes')===k?'✓ ':'')+l,onClick:()=>{chat.photoFreq=k;save('chats');draw();}}))});
     const titles={relation:rp?'Сценарий / предыстория':'Кто вы друг другу',style:'Как пишет '+ch.name,ltm:'Долгая память'};
     $$('[data-ed]',el).forEach(b=>b.onclick=async()=>{
       const k=b.dataset.ed;const cur=k==='ltm'?ltm.text:chat[k];
       if(k==='style'&&!cur)toast('Например: пишет только маленькими буквами, без точек, много мата и опечаток',4500);
       const v=await editText(titles[k],cur||'');if(v===null)return;
-      if(k==='ltm'){chat.ltm=Object.assign(ltm,{text:v.trim()});}else chat[k]=v.trim();
+      if(k==='ltm')ltm.text=v.trim();else chat[k]=v.trim();
       save('chats');draw();});
     const tz=$('[data-tz]',el);if(tz)tz.onchange=()=>{chat.tz=tz.value||null;save('chats');};
     const real=$('[data-real]',el);if(real)real.onclick=()=>{chat.realism=chat.realism===false;if(chat.realism===false)setOnline(chat,true);save('chats');draw();};
-    $('[data-ltm]',el).onclick=()=>{chat.ltm=Object.assign(ltm,{enabled:!ltm.enabled});save('chats');draw();};
-    const ev=$('[data-every]',el);ev.onchange=()=>{let v=Math.round(+ev.value||30);v=Math.max(5,Math.min(500,v));chat.ltm=Object.assign(ltm,{every:v});save('chats');draw();};
-    $('[data-ltmnow]',el).onclick=async()=>{if(summarizing.has(chatId))return;const p=maybeSummarize(chatId,true);draw();await p;draw();};
+    $('[data-ltm]',el).onclick=()=>{ltm.enabled=!ltm.enabled;save('chats');draw();};
+    $('[data-auto]',el).onclick=()=>{ltm.auto=!auto;save('chats');draw();};
+    const ev=$('[data-every]',el);if(ev)ev.onchange=()=>{let v=Math.round(+ev.value||30);v=Math.max(5,Math.min(500,v));ltm.every=v;save('chats');draw();};
+    $('[data-ltmnow]',el).onclick=()=>{if(!summarizing.has(chatId))maybeSummarize(chatId,true);};
     $$('[data-t]',el).forEach(b=>b.onclick=()=>{tab=b.dataset.t;draw();});
     $$('[data-a]',el).forEach(b=>b.onclick=()=>{
       const a=b.dataset.a;
       if(a==='chat')pop();
       if(a==='mute'){chat.muted=!chat.muted;save('chats');draw();toast(chat.muted?'Уведомления от этого чата выключены':'Уведомления включены');}
       if(a==='more')sheet({actions:[
-        {label:'Очистить историю',danger:true,onClick:async()=>{if(await confirmSheet('Удалить все сообщения в этом чате? Долгая память тоже очистится.','Очистить')){chat.messages=[];chat.swipe=null;chat.ltm.text='';chat.ltm.upTo=0;save('chats');toast('История очищена');}}},
-        {label:'Удалить чат',danger:true,onClick:async()=>{if(await confirmSheet('Удалить этот чат целиком?','Удалить чат')){S.chats=S.chats.filter(c=>c.id!==chatId);await save('chats');popToRoot();}}},
+        {label:'Очистить историю',danger:true,onClick:async()=>{if(await confirmSheet('Удалить все сообщения в этом чате? Долгая память тоже очистится.','Очистить')){deleteMediaOf(chat.messages);chat.messages=[];chat.swipe=null;ltm.text='';ltm.upTo=0;save('chats');toast('История очищена');}}},
+        {label:'Удалить чат',danger:true,onClick:async()=>{if(await confirmSheet('Удалить этот чат целиком?','Удалить чат')){deleteMediaOf(chat.messages);S.chats=S.chats.filter(c=>c.id!==chatId);await save('chats');popToRoot();}}},
       ]});
     });
   };
@@ -1363,16 +1903,16 @@ function botProfile(el,chatId){
 }
 
 /* =====================================================
-   ЭКРАН: все персонажи
+   ЭКРАН: контакты (все персонажи)
    ===================================================== */
 ROOTS.chars=function(el){
-  el.innerHTML=`<div class="bigtitle"><h1>Персонажи</h1><button class="iconbtn" data-new>${IC.plus}</button></div>
+  el.innerHTML=`<div class="bigtitle"><h1>Контакты</h1><button class="iconbtn" data-new>${IC.plus}</button></div>
   <div class="scroll">${S.characters.length?`<div class="group">${S.characters.map(c=>{
       const n=S.chats.filter(x=>x.characterId===c.id).length;
       return `<button class="row" data-c="${c.id}">${avatar(charPhoto(c),c.name,48)}<span class="label" style="display:flex;flex-direction:column;gap:2px;min-width:0"><span>${esc(c.name)}</span><span style="font-size:13px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${n?n+' чат'+(n===1?'':n<5?'а':'ов'):'нет чатов'}${c.cardGreetings&&c.cardGreetings.length?' · из карточки':''}</span></span>${IC.chev}</button>`;}).join('')}</div>`:
-    `<div class="empty">Персонажей пока нет.<br>Нажмите <b style="color:var(--accent)">+</b>, чтобы создать или импортировать PNG-карточку.</div>`}</div>`;
+    `<div class="empty">Контактов пока нет.<br>Нажмите <b style="color:var(--accent)">+</b>, чтобы создать персонажа или импортировать PNG-карточку.</div>`}</div>`;
   $('[data-new]',el).onclick=()=>sheet({actions:[
-    {label:'Новый персонаж',onClick:()=>push(e=>characterEditor(e,null))},
+    {label:'Новый контакт',onClick:()=>push(e=>characterEditor(e,null))},
     {label:'Импорт PNG-карточки',onClick:async()=>{const c=await importCard();if(c)ROOTS.chars(el);}},
   ]});
   $$('[data-c]',el).forEach(b=>b.onclick=()=>push(e=>characterEditor(e,b.dataset.c)));
@@ -1386,7 +1926,7 @@ function characterEditor(el,charId,opts={}){
   const src=charId?charById(charId):null;
   const d=src?JSON.parse(JSON.stringify(src)):{id:uid(),name:'',personality:'',photos:[],createdAt:Date.now()};
   const draw=()=>{
-    el.innerHTML=topbar(isNew?'Новый персонаж':'Персонаж',{right:`<button class="link" data-save style="font-weight:600">Готово</button>`})+`<div class="scroll">
+    el.innerHTML=topbar(isNew?'Новый контакт':'Контакт',{right:`<button class="link" data-save style="font-weight:600">Готово</button>`})+`<div class="scroll">
       ${isNew?'':`<button class="btn" data-newchat style="margin-top:16px">Начать новый чат</button>`}
       <div class="group-title">Фото</div>
       <div class="photos">${d.photos.map((p,i)=>`<div class="ph"><img src="${p.src}"><button class="x" data-del="${i}">×</button><button class="ref ${p.ref?'on':''}" data-ref="${i}">${p.ref?'★ референс':'референс'}</button></div>`).join('')}<button class="ph add" data-addph>+</button></div>
@@ -1399,7 +1939,7 @@ function characterEditor(el,charId,opts={}){
       ${d.cardGreetings&&d.cardGreetings.length?`<div class="group-title">Первые сообщения из карточки</div>
         <div class="group">${d.cardGreetings.map((g,i)=>`<button class="row" data-g="${i}"><span class="label" style="font-size:15px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${i+1}. ${esc(plain(g).slice(0,80))}</span>${IC.chev}</button>`).join('')}</div>
         <div class="group-foot">Предлагаются при создании чата в формате ролплея. Нажмите, чтобы поправить.</div>`:''}
-      ${isNew?'':'<button class="btn danger" data-delchar>Удалить персонажа</button>'}
+      ${isNew?'':'<button class="btn danger" data-delchar>Удалить контакт</button>'}
     </div>`;
     bindBack(el);
     $$('[data-f]',el).forEach(i=>i.oninput=()=>d[i.dataset.f]=i.value);
@@ -1417,7 +1957,7 @@ function characterEditor(el,charId,opts={}){
     $$('.ph img',el).forEach((img,i)=>img.onclick=()=>viewer(d.photos.map(p=>p.src),i,{
       action:{label:'Сделать аватаркой',hideOn:0,onClick:(k)=>{const [p]=d.photos.splice(k,1);d.photos.unshift(p);draw();toast('Теперь это аватарка');}}}));
     $('[data-save]',el).onclick=async()=>{
-      if(!d.name.trim()){toast('Введите имя персонажа');return;}
+      if(!d.name.trim()){toast('Введите имя');return;}
       d.name=d.name.trim();
       if(isNew)S.characters.push(d);else Object.assign(src,d);
       await save('characters');
@@ -1427,7 +1967,8 @@ function characterEditor(el,charId,opts={}){
     const dc=$('[data-delchar]',el);
     if(dc)dc.onclick=async()=>{
       const n=S.chats.filter(c=>c.characterId===charId).length;
-      if(!await confirmSheet(n?`Удалить персонажа и ${n} его чат(ов)?`:'Удалить персонажа?','Удалить'))return;
+      if(!await confirmSheet(n?`Удалить контакт и ${n} его чат(ов)?`:'Удалить контакт?','Удалить'))return;
+      S.chats.filter(c=>c.characterId===charId).forEach(c=>deleteMediaOf(c.messages));
       S.characters=S.characters.filter(c=>c.id!==charId);S.chats=S.chats.filter(c=>c.characterId!==charId);
       await save('characters');await save('chats');popToRoot();
     };
@@ -1515,6 +2056,12 @@ ROOTS.settings=function(el){
       <button class="row" data-go="memory"><span class="label">Память и ответы</span><span class="value">${(st.contextTokens||0).toLocaleString('ru-RU')} ток.</span>${IC.chev}</button>
       <button class="row" data-go="greeting"><span class="label">Приветствие по умолчанию</span><span class="value">${st.greeting.enabled?'вкл':'выкл'}</span>${IC.chev}</button>
     </div>
+    <div class="group-title">Медиа и память</div>
+    <div class="group">
+      <button class="row" data-go="media"><span class="label">Фото, голосовые, видео</span>${IC.chev}</button>
+      <button class="row" data-go="imagegen"><span class="label">Генерация картинок</span>${IC.chev}</button>
+      <button class="row" data-go="ltm"><span class="label">Долгая память</span><span class="value">${st.ltm.prompt===DEFAULT_LTM_PROMPT?'стандартная':'свой промпт'}</span>${IC.chev}</button>
+    </div>
     <div class="group-title">Данные</div>
     <div class="group">
       <button class="row" data-go="backup"><span class="label">Резервная копия</span>${IC.chev}</button>
@@ -1523,7 +2070,7 @@ ROOTS.settings=function(el){
     <div class="group-foot" style="text-align:center;margin-top:18px">Veya AI · ${VERSION}<br>Все данные хранятся только на этом устройстве.</div>
   </div>`;
   $$('[data-mode]',el).forEach(b=>b.onclick=()=>{st.mode=b.dataset.mode;save('settings');ROOTS.settings(el);});
-  const go={apis:apiList,promptChat:el=>promptEditor(el,'chat'),promptRp:el=>promptEditor(el,'rp'),memory:memoryEditor,greeting:greetingEditor,backup:backupScreen};
+  const go={media:mediaSettings,imagegen:imageGenScreen,ltm:ltmSettings,apis:apiList,promptChat:el=>promptEditor(el,'chat'),promptRp:el=>promptEditor(el,'rp'),memory:memoryEditor,greeting:greetingEditor,backup:backupScreen};
   $$('[data-go]',el).forEach(b=>b.onclick=()=>push(go[b.dataset.go]));
   $('[data-wipe]',el).onclick=async()=>{
     if(!await confirmSheet('Удалить всех персонажей, персон, чаты и настройки? Это нельзя отменить. Сначала лучше сделать резервную копию.','Удалить всё'))return;
@@ -1668,22 +2215,31 @@ function greetingEditor(el){
   draw();
 }
 function backupScreen(el){
+  let withMedia=true;
+  const draw=()=>{
   el.innerHTML=topbar('Резервная копия')+`<div class="scroll">
     <div class="group-foot" style="margin-top:16px">Все ваши данные хранятся только в этом приложении на телефоне. Сохраняйте копию время от времени — например, в «Файлы» или iCloud — чтобы ничего не потерять.</div>
+    <div class="group"><button class="row" data-wm><span class="label">Вместе с фото, голосовыми и видео</span><span class="toggle ${withMedia?'on':''}"></span></button></div>
+    <div class="group-foot">С медиа файл получается тяжелее. Без них переписка сохранится, но вместо фото и голосовых будут пустые места.</div>
     <button class="btn" data-exp>Сохранить копию в файл</button>
     <button class="btn secondary" data-imp>Восстановить из файла</button>
     <div class="group-foot">При восстановлении текущие данные заменяются данными из файла. Копия содержит и ключи API — не отправляйте этот файл другим людям.</div>
   </div>`;
   bindBack(el);
+  $('[data-wm]',el).onclick=()=>{withMedia=!withMedia;draw();};
   $('[data-exp]',el).onclick=async()=>{
-    const data=JSON.stringify({app:'veya',version:1,exportedAt:Date.now(),settings:S.settings,characters:S.characters,personas:S.personas,chats:S.chats});
-    const name='veya-backup-'+new Date().toISOString().slice(0,10)+'.json';
-    const file=new File([data],name,{type:'application/json'});
+    const b=$('[data-exp]',el);b.disabled=true;b.innerHTML='<span class="spin"></span> Собираю…';
     try{
-      if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:name});return;}
-    }catch(e){if(e.name==='AbortError')return;}
-    const a=document.createElement('a');a.href=URL.createObjectURL(file);a.download=name;document.body.appendChild(a);a.click();
-    setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},2000);
+      const media={};
+      if(withMedia){for(const k of await DB.mediaKeys()){const blob=await DB.getMedia(k);if(blob)media[k]={mime:blob.type,data:await blobToB64(blob)};}}
+      const data=JSON.stringify({app:'veya',version:2,exportedAt:Date.now(),settings:S.settings,characters:S.characters,personas:S.personas,chats:S.chats,media});
+      const name='veya-backup-'+new Date().toISOString().slice(0,10)+'.json';
+      const file=new File([data],name,{type:'application/json'});
+      b.disabled=false;b.textContent='Сохранить копию в файл';
+      try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:name});return;}}catch(e){if(e.name==='AbortError')return;}
+      const a=document.createElement('a');a.href=URL.createObjectURL(file);a.download=name;document.body.appendChild(a);a.click();
+      setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},2000);
+    }catch(e){toast('Ошибка: '+e.message,5000);b.disabled=false;b.textContent='Сохранить копию в файл';}
   };
   $('[data-imp]',el).onclick=async()=>{
     const [f]=await pickFiles('application/json,.json');if(!f)return;
@@ -1691,11 +2247,121 @@ function backupScreen(el){
       const d=JSON.parse(await f.text());
       if(d.app!=='veya')throw new Error('Это не файл резервной копии Veya');
       if(!await confirmSheet('Заменить все текущие данные данными из файла?','Восстановить'))return;
+      toast('Восстанавливаю…',8000);
+      await DB.clear();
       S.settings=Object.assign(defaultSettings(),d.settings||{});S.characters=d.characters||[];S.personas=d.personas||[];S.chats=d.chats||[];
       await Promise.all(['settings','characters','personas','chats'].map(save));
+      for(const [k,v] of Object.entries(d.media||{}))await DB.putMedia(k,b64ToBlob(v.data,v.mime));
       toast('Данные восстановлены');setTimeout(()=>location.reload(),800);
     }catch(e){toast('Ошибка: '+e.message,5000);}
   };
+  };
+  draw();
+}
+function slotLabel(id,emptyLabel='Основная модель чата'){const a=id&&S.settings.apis.find(x=>x.id===id);return a?(a.name||a.model):emptyLabel;}
+function pickSlotSheet(title,current,emptyLabel='Основная модель чата'){
+  return new Promise(res=>{
+    const opts=[{id:null},...S.settings.apis.map(a=>({id:a.id}))];
+    sheet({title,actions:opts.map(o=>({label:((o.id||null)===(current||null)?'✓ ':'')+slotLabel(o.id,emptyLabel),onClick:()=>res({id:o.id})}))}).then(i=>{if(i===null||i<0)res(null);});
+  });
+}
+function mediaSettings(el){
+  const st=S.settings;
+  const draw=()=>{
+    const md=st.media,sl=st.slots;
+    el.innerHTML=topbar('Фото, голосовые, видео')+`<div class="scroll">
+      <div class="group-title">Что можно отправлять</div>
+      <div class="group">
+        <button class="row" data-t="photo"><span class="label">Фото</span><span class="toggle ${md.photo?'on':''}"></span></button>
+        <button class="row" data-t="voice"><span class="label">Голосовые</span><span class="toggle ${md.voice?'on':''}"></span></button>
+        <button class="row" data-t="video"><span class="label">Кружочки и видео</span><span class="toggle ${md.video?'on':''}"></span></button>
+      </div>
+      <div class="group-foot">Если выключить — кнопки пропадут, а бот не будет просить это прислать и даже упоминать. Выключайте то, что ваша модель не понимает.</div>
+      <div class="group-title">Какая модель что обрабатывает</div>
+      <div class="group">
+        <button class="row" data-s="photo"><span class="label">Понимание фото</span><span class="value">${esc(slotLabel(sl.photo))}</span>${IC.chev}</button>
+        <button class="row" data-s="voice"><span class="label">Голосовые</span><span class="value">${esc(slotLabel(sl.voice))}</span>${IC.chev}</button>
+        <button class="row" data-s="video"><span class="label">Кружочки и видео</span><span class="value">${esc(slotLabel(sl.video))}</span>${IC.chev}</button>
+        <button class="row" data-s="imageGen"><span class="label">Генерация картинок</span><span class="value">${esc(slotLabel(sl.imageGen))}</span>${IC.chev}</button>
+      </div>
+      <div class="group-foot">«Основная модель чата» — файл уходит прямо той модели, с которой идёт переписка. Так работает Gemini: он сам видит фото и слышит голосовые.<br><br>Если переписываетесь с моделью, которая не видит и не слышит (DeepSeek, GLM), выберите здесь подключение с Gemini — он незаметно расшифрует голосовое или опишет фото, а основная модель получит текст.<br><br>Для генерации картинок нужна рисующая модель (например, Gemini с поддержкой изображений). Создайте для неё отдельное подключение в «API подключения».</div>
+    </div>`;
+    bindBack(el);
+    $$('[data-t]',el).forEach(b=>b.onclick=()=>{md[b.dataset.t]=!md[b.dataset.t];save('settings');draw();});
+    $$('[data-s]',el).forEach(b=>b.onclick=async()=>{const k=b.dataset.s;const r=await pickSlotSheet({photo:'Модель для фото',voice:'Модель для голосовых',video:'Модель для видео',imageGen:'Модель для генерации картинок'}[k],sl[k]);if(r){sl[k]=r.id;save('settings');draw();}});
+  };
+  draw();
+}
+function ltmSettings(el){
+  const st=S.settings;
+  const draw=()=>{
+    el.innerHTML=topbar('Долгая память')+`<div class="scroll">
+      <div class="group" style="margin-top:20px"><button class="row" data-api><span class="label">Модель для памяти</span><span class="value">${esc(slotLabel(st.ltm.apiId,'Модель чата'))}</span>${IC.chev}</button></div>
+      <div class="group-foot">«Модель чата» — память обновляет та же модель, с которой идёт переписка. Можно выбрать отдельную, например подешевле и побыстрее.</div>
+      <div class="group-title">Промпт обновления памяти</div>
+      <div class="group"><div class="field"><textarea data-p style="min-height:45vh">${esc(st.ltm.prompt)}</textarea></div></div>
+      <div class="group-foot">Подставляются автоматически: {{char}} и {{user}} — имена, {{memory}} — текущая память, {{messages}} — новые сообщения, {{format}} — «переписки» или «ролевой игры». Если убрать {{memory}} или {{messages}}, они всё равно добавятся в конец.</div>
+      <button class="btn secondary" data-reset>Вернуть стандартный промпт</button>
+    </div>`;
+    bindBack(el);
+    const ta=$('[data-p]',el);ta.oninput=()=>{st.ltm.prompt=ta.value;save('settings');};
+    $('[data-api]',el).onclick=async()=>{const r=await pickSlotSheet('Модель для долгой памяти',st.ltm.apiId,'Модель чата');if(r){st.ltm.apiId=r.id;save('settings');draw();}};
+    $('[data-reset]',el).onclick=async()=>{if(!await confirmSheet('Вернуть стандартный промпт памяти?','Вернуть'))return;st.ltm.prompt=DEFAULT_LTM_PROMPT;save('settings');draw();};
+  };
+  draw();
+}
+function imageGenScreen(el){
+  const st={prompt:'',charId:null,persona:false,extra:[],result:null,loading:false,ctrl:null};
+  const draw=()=>{
+    const api=(S.settings.slots.imageGen&&S.settings.apis.find(a=>a.id===S.settings.slots.imageGen))||activeApi();
+    const ch=st.charId&&charById(st.charId);const pr=personaById(S.settings.activePersonaId);
+    el.innerHTML=topbar('Генерация картинок')+`<div class="scroll">
+      <div class="group" style="margin-top:16px"><button class="row" data-api><span class="label">Модель</span><span class="value">${esc(slotLabel(S.settings.slots.imageGen,api?(api.name||api.model)+' (основная)':'не настроена'))}</span>${IC.chev}</button></div>
+      <div class="group"><div class="field"><label>Что нарисовать</label><textarea data-p style="min-height:140px" placeholder="Например: селфи в зеркале лифта, вечер, неоновый свет, кожаная куртка, лёгкая улыбка">${esc(st.prompt)}</textarea></div></div>
+      <div class="group-title">Референсы</div>
+      <div class="group">
+        <button class="row" data-ch><span class="label">Контакт</span><span class="value">${ch?esc(ch.name)+' ('+((ch.photos||[]).filter(p=>p.ref).length)+' фото)':'не выбран'}</span>${IC.chev}</button>
+        <button class="row" data-pr><span class="label">Моя персона${pr?' ('+esc(pr.name)+')':''}</span><span class="toggle ${st.persona?'on':''}"></span></button>
+      </div>
+      <div class="photos">${st.extra.map((src,i)=>`<div class="ph"><img src="${src}"><button class="x" data-dx="${i}">×</button></div>`).join('')}<button class="ph add" data-addx>+</button></div>
+      <div class="group-foot">Внешность берётся с фото-референсов: у контакта — фото с отметкой «референс», у персоны — аватарка. «+» — свои дополнительные картинки.</div>
+      <button class="btn" data-go>${st.loading?'<span class="spin"></span> Рисую… (нажмите, чтобы остановить)':'Сгенерировать'}</button>
+      ${st.result?`<div style="padding:0 16px"><img data-res src="data:${st.result.mime};base64,${st.result.data}" style="width:100%;border-radius:16px;display:block"></div>
+        <button class="btn secondary" data-save>Сохранить на телефон</button><button class="btn secondary" data-send>Отправить в чат</button>`:''}
+    </div>`;
+    bindBack(el);
+    const ta=$('[data-p]',el);ta.oninput=()=>st.prompt=ta.value;
+    $('[data-api]',el).onclick=async()=>{const r=await pickSlotSheet('Модель для генерации картинок',S.settings.slots.imageGen);if(r){S.settings.slots.imageGen=r.id;save('settings');draw();}};
+    $('[data-ch]',el).onclick=()=>sheet({title:'Чьи фото взять как референс',actions:[{label:'Без контакта',onClick:()=>{st.charId=null;draw();}},...S.characters.map(c=>({label:c.name,onClick:()=>{st.charId=c.id;draw();}}))]});
+    $('[data-pr]',el).onclick=()=>{if(!pr||!pr.photo){toast('У активной персоны нет фото');return;}st.persona=!st.persona;draw();};
+    $('[data-addx]',el).onclick=async()=>{const fs=await pickFiles('image/*',true);for(const f of fs)st.extra.push(await resizeImage(f,1280));draw();};
+    $$('[data-dx]',el).forEach(b=>b.onclick=()=>{st.extra.splice(+b.dataset.dx,1);draw();});
+    $('[data-go]',el).onclick=async()=>{
+      if(st.loading){st.ctrl&&st.ctrl.abort();return;}
+      if(!st.prompt.trim()){toast('Опишите, что нарисовать');return;}
+      const refs=[];const toRef=src=>{const [h,b]=src.split(',');return {mime:h.slice(5).split(';')[0],data:b};};
+      let note='';
+      if(ch){const ps=(ch.photos||[]).filter(p=>p.ref).slice(0,5);ps.forEach(p=>refs.push(toRef(p.src)));if(ps.length)note+=` Внешность ${ch.name} — строго как на первых ${ps.length} изображениях.`;}
+      if(st.persona&&pr&&pr.photo){refs.push(toRef(pr.photo));note+=` Внешность ${pr.name} — как на изображении ${refs.length}.`;}
+      st.extra.forEach(src=>refs.push(toRef(src)));
+      st.loading=true;st.ctrl=new AbortController();draw();
+      try{st.result=await callImage(api,st.prompt.trim()+(note?'\n'+note:''),refs,{signal:st.ctrl.signal});}
+      catch(e){if(e.name!=='AbortError')toast('❌ '+e.message,7000);}
+      st.loading=false;draw();
+    };
+    const sv=$('[data-save]',el);if(sv)sv.onclick=async()=>{const blob=b64ToBlob(st.result.data,st.result.mime);const file=new File([blob],'veya-'+Date.now()+'.'+(st.result.mime.split('/')[1]||'png'),{type:st.result.mime});
+      try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file]});return;}}catch(e){if(e.name==='AbortError')return;}
+      const a=document.createElement('a');a.href=URL.createObjectURL(file);a.download=file.name;document.body.appendChild(a);a.click();a.remove();};
+    const sd=$('[data-send]',el);if(sd)sd.onclick=()=>{
+      if(!S.chats.length){toast('Сначала создайте чат');return;}
+      sheet({title:'В какой чат отправить',actions:[...S.chats].sort((a,b)=>lastTs(b)-lastTs(a)).slice(0,12).map(c=>({label:(charById(c.characterId)||{name:'?'}).name+' · '+MODE_NAMES[chatMode(c)],onClick:async()=>{
+        const mediaId=await storeMedia(b64ToBlob(st.result.data,st.result.mime));
+        c.messages.push({id:uid(),role:'user',type:'photo',mediaId,mime:st.result.mime,text:'',ts:Date.now(),status:'sent'});c.swipe=null;
+        await save('chats');toast('Отправлено — откройте чат, чтобы бот ответил');}}))});
+    };
+    $('[data-res]',el)&&($('[data-res]',el).onclick=()=>viewer([`data:${st.result.mime};base64,${st.result.data}`],0));
+  };
+  draw();
 }
 
 /* =====================================================
